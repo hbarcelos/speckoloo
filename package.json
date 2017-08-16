@@ -1,0 +1,61 @@
+{
+  "name": "speckoloo",
+  "version": "0.1.0",
+  "description": "Domain entites inspired by Speck",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "ava",
+    "test:watch": "ava --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hbarcelos/speckoloo.git"
+  },
+  "keywords": [
+    "DDD",
+    "OLOO"
+  ],
+  "author": "Henrique Barcelos <rick.hjpbarcelos@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/hbarcelos/speckoloo/issues"
+  },
+  "homepage": "https://github.com/hbarcelos/speckoloo#readme",
+  "devDependencies": {
+    "@istanbuljs/nyc-config-babel": "^1.2.2",
+    "ava": "^0.22.0",
+    "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "babel-plugin-istanbul": "^4.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.24.1",
+    "eslint": "^4.4.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nyc": "^11.1.0"
+  },
+  "dependencies": {},
+  "ava": {
+    "require": "babel-register",
+    "babel": {
+      "babelrc": true
+    }
+  },
+  "nyc": {
+    "require": [
+      "babel-register"
+    ],
+    "sourceMap": false,
+    "instrument": false,
+    "check-coverage": true,
+    "include": [
+      "src/**/*.js"
+    ],
+    "cache": true,
+    "all": true
+  }
+}
