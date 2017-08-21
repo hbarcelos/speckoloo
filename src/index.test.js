@@ -39,3 +39,63 @@ test('Given data with extra fields, when factory is called, then it should creat
 
   t.deepEqual(result, expected)
 })
+
+test('Given valid data with nested entity, when factory is called for parent entity, then it should create an object referencing the child entity', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {},
+    childProp3: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    parentProp1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const validData = {
+    parentProp1: 'a',
+    childEntity: {
+      childProp1: 'b',
+      childProp2: 'c',
+      childProp3: 'd'
+    }
+  }
+
+  const result = parentFactory(validData)
+
+  t.true(typeof result.childEntity.toJSON === 'function')
+})
+
+test('Given nestedChild data with extra properties, when factory is called for parent entity, then it should create an object referencing the child entity excluding the extra properties', t => {
+  const childSchema = {
+    childProp1: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const extraPropertiesOnNestedChildData = {
+    childEntity: {
+      childProp1: 'b',
+      childProp2: 'c'
+    }
+  }
+
+  const expected = {
+    childEntity: {
+      childProp1: 'b'
+    }
+  }
+
+  const result = parentFactory(extraPropertiesOnNestedChildData).toJSON()
+  t.deepEqual(result, expected)
+})
