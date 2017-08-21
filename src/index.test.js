@@ -70,7 +70,7 @@ test('Given valid data with nested entity, when factory is called for parent ent
   t.true(typeof result.childEntity.toJSON === 'function')
 })
 
-test('Given nestedChild data with extra properties, when factory is called for parent entity, then it should create an object referencing the child entity excluding the extra properties', t => {
+test('Given nested child data with extra properties, when factory is called for parent entity, then it should create an object referencing the child entity excluding the extra properties', t => {
   const childSchema = {
     childProp1: {}
   }
@@ -97,5 +97,31 @@ test('Given nestedChild data with extra properties, when factory is called for p
   }
 
   const result = parentFactory(extraPropertiesOnNestedChildData).toJSON()
+  t.deepEqual(result, expected)
+})
+
+test('Given missing nested child data, when factory is called for parent entity, then it should create an object that does not contain the property related to the child entity', t => {
+  const childSchema = {
+    childProp1: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    prop1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const missingChildEntityData = {
+    prop1: 'a'
+  }
+
+  const expected = {
+    prop1: 'a'
+  }
+
+  const result = parentFactory(missingChildEntityData).toJSON()
   t.deepEqual(result, expected)
 })
