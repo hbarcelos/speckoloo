@@ -19,6 +19,18 @@ test('Given valid data, when factory is called, then it should create an object 
   t.deepEqual(result, data)
 })
 
+const validators = {
+  requiredString: (value, field, data) => {
+    if (typeof value !== 'string') {
+      return {
+        error: [`${field} should be a non-empty string`]
+      }
+    }
+
+    return { data }
+  }
+}
+
 test('Given data with extra fields, when factory is called, then it should create an object with only the keys from schema, dropping the unspecified ones', t => {
   const schema = {
     myProp1: {},
@@ -124,4 +136,196 @@ test('Given missing nested child data, when factory is called for parent entity,
 
   const result = parentFactory(missingChildEntityData).toJSON()
   t.deepEqual(result, expected)
+})
+
+test('Given entity with validation and valid data, when validate is called, then it should not throw', t => {
+  const schema = {
+    prop1: {
+      validator: validators.requiredString
+    }
+  }
+
+  const validData = {
+    prop1: 'a'
+  }
+
+  const factory = subject(schema)
+
+  const instance = factory(validData)
+
+  t.notThrows(() => instance.validate())
+})
+
+test('Given entity with validation and invalid data, when validate is called, then it should throw', t => {
+  const schema = {
+    prop1: {
+      validator: validators.requiredString
+    },
+    prop2: {
+      validator: validators.requiredString
+    }
+  }
+
+  const invalidData = {
+    prop1: 'a'
+  }
+
+  const factory = subject(schema)
+
+  const instance = factory(invalidData)
+
+  const error = t.throws(() => { instance.validate() })
+  t.is(error.name, 'ValidationError')
+  t.true(error.details.hasOwnProperty('prop2'))
+})
+
+test('Given entity with nested entity and valid data, when validate is called, then it should not throw', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    }
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      validator: entity => {
+        try {
+          entity.validate()
+          return { data: entity }
+        } catch (e) {
+          return { error: e.details }
+        }
+      },
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const validData = {
+    childEntity: {
+      childProp1: 'a'
+    }
+  }
+
+  const instance = parentFactory(validData)
+
+  t.notThrows(() => instance.validate())
+})
+
+test('Given entity with nested entity and invalid data, when validate is called, then it should throw', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    }
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      validator: entity => {
+        try {
+          entity.validate()
+          return { data: entity }
+        } catch (e) {
+          return { error: e.details }
+        }
+      },
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const invalidData = {
+    childEntity: {
+      childProp1: 'a'
+    }
+  }
+
+  const instance = parentFactory(invalidData)
+
+  const error = t.throws(() => instance.validate())
+  t.is(error.name, 'ValidationError')
+  t.true(error.details.hasOwnProperty('childEntity'))
+  t.true(error.details.childEntity.hasOwnProperty('childProp2'))
+})
+
+test('Given entity with missing validator for primitive properties, when validate is called, then it should not throw ', t => {
+  const schema = {
+    prop1: {},
+    prop2: {}
+  }
+
+  const emptyData = {}
+
+  const factory = subject(schema)
+
+  const instance = factory(emptyData)
+
+  t.notThrows(() => instance.validate())
+})
+
+test('Given entity with missing validator for nested entity property with valid data, when validate is called, then it should not throw ', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    }
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const validData = {
+    childEntity: {
+      childProp1: 'a',
+      childProp2: 'a'
+    }
+  }
+
+  const instance = parentFactory(validData)
+
+  t.notThrows(() => instance.validate())
+})
+
+test('Given entity with missing validator for nested entity property with invalidData, when validate is called, then it should throw ', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    }
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const invalidData = {
+    childEntity: {
+      childProp1: 'a'
+    }
+  }
+
+  const instance = parentFactory(invalidData)
+
+  const error = t.throws(() => instance.validate())
+  t.is(error.name, 'ValidationError')
+  t.true(error.details.hasOwnProperty('childEntity'))
+  t.true(error.details.childEntity.hasOwnProperty('childProp2'))
 })
