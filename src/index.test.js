@@ -1,5 +1,5 @@
 import { test } from 'ava'
-import subject from './index'
+import subject, { defaultValidators } from './index'
 
 test('Given valid data, when factory is called, then it should create an object with all keys from schema', t => {
   const schema = {
