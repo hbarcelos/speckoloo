@@ -1,87 +1,42 @@
-const pick = (obj, keys) => Object.keys(obj).reduce((result, currentKey) => {
-  keys.includes(currentKey) &&
-    (result[currentKey] = obj[currentKey])
-  return result
-}, {})
+import { pick, identity } from './common'
+import validate from './validate'
+import toJSON from './to-json'
+import buildSchema from './build-schema'
 
-const identity = a => a
-const allowAny = (value, field, data) => ({ data })
-
-const defaultNestedEntityValidator = entity => {
-  try {
-    entity.validate()
-    return { data: entity }
-  } catch (e) {
-    return { error: e.details }
-  }
-}
-
-const buildDescriptors = ($schema) => ({
+const buildDescriptors = (schema, validate) => ({
   $schema: {
-    value: $schema
+    value: schema
   },
   toJSON: {
     value: function () {
-      return Object.keys(this).reduce(
-        (acc, currentKey) =>
-          Object.assign(
-            acc,
-            {
-              [currentKey]: typeof this[currentKey].toJSON === 'function'
-                ? this[currentKey].toJSON()
-                : this[currentKey]
-            }
-          ),
-        {}
-      )
+      return toJSON(this.$schema, this)
     }
   },
   validate: {
     value: function () {
-      const allErrors = Object.keys($schema).reduce((acc, currentKey) => {
-        const { error } = $schema[currentKey].validator(this[currentKey], currentKey, this)
-        return error ? { ...acc, [currentKey]: error } : acc
-      }, undefined)
-
-      if (allErrors) {
-        throw Object.assign(Object.create(Error.prototype), {
-          message: 'Validation Error!',
-          name: 'ValidationError',
-          details: allErrors
-        })
-      }
+      return validate(this.$schema, this)
     }
   }
 })
 
-export default schema => data => {
-  const schemaKeys = Object.keys(schema)
+export default schemaDefinition => {
+  const schemaKeys = Object.keys(schemaDefinition)
 
-  const $data = pick(data, schemaKeys)
+  const schema = buildSchema(schemaDefinition)
 
-  const $schema = schemaKeys.reduce((acc, currentKey) => {
-    const defaultValidator = schema[currentKey].factory
-      ? defaultNestedEntityValidator
-      : allowAny
+  return data => {
+    const $data = pick(data, schemaKeys)
 
-    return {
-      ...acc,
-      [currentKey]: {
-        ...schema[currentKey],
-        validator: schema[currentKey].validator || defaultValidator
-      }
-    }
-  }, {})
-
-  return Object.assign(
-    Object.create(null, buildDescriptors($schema)),
-    Object.keys($data).reduce(
-      (acc, currentKey) =>
-        Object.assign(
-          acc,
-          { [currentKey]: (schema[currentKey].factory || identity)($data[currentKey]) }
-        ),
-      {}
+    return Object.assign(
+      Object.create(null, buildDescriptors(schema, validate)),
+      Object.keys($data).reduce(
+        (acc, currentKey) =>
+          Object.assign(
+            acc,
+            { [currentKey]: (schemaDefinition[currentKey].factory || identity)($data[currentKey]) }
+          ),
+        {}
+      )
     )
-  )
+  }
 }

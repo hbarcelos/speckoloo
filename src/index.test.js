@@ -153,7 +153,9 @@ test('Given entity with validation and valid data, when validate is called, then
 
   const instance = factory(validData)
 
-  t.notThrows(() => instance.validate())
+  const result = instance.validate()
+
+  t.is(result, instance)
 })
 
 test('Given entity with validation and invalid data, when validate is called, then it should throw', t => {
@@ -210,7 +212,9 @@ test('Given entity with nested entity and valid data, when validate is called, t
 
   const instance = parentFactory(validData)
 
-  t.notThrows(() => instance.validate())
+  const result = instance.validate()
+
+  t.is(result, instance)
 })
 
 test('Given entity with nested entity and invalid data, when validate is called, then it should throw', t => {
@@ -265,7 +269,8 @@ test('Given entity with missing validator for primitive properties, when validat
 
   const instance = factory(emptyData)
 
-  t.notThrows(() => instance.validate())
+  const result = instance.validate()
+  t.is(result, instance)
 })
 
 test('Given entity with missing validator for nested entity property with valid data, when validate is called, then it should not throw ', t => {
@@ -298,7 +303,7 @@ test('Given entity with missing validator for nested entity property with valid 
   t.notThrows(() => instance.validate())
 })
 
-test('Given entity with missing validator for nested entity property with invalidData, when validate is called, then it should throw ', t => {
+test('Given entity with missing validator for nested entity property with invalidData, when validate is called, then it should not throw ', t => {
   const childSchema = {
     childProp1: {
       validator: validators.requiredString
@@ -324,8 +329,6 @@ test('Given entity with missing validator for nested entity property with invali
 
   const instance = parentFactory(invalidData)
 
-  const error = t.throws(() => instance.validate())
-  t.is(error.name, 'ValidationError')
-  t.true(error.details.hasOwnProperty('childEntity'))
-  t.true(error.details.childEntity.hasOwnProperty('childProp2'))
+  const result = instance.validate()
+  t.is(result, instance)
 })
