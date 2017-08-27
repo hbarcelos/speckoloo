@@ -8,16 +8,26 @@ const buildDescriptors = (schema, validate) => ({
     value: schema
   },
   toJSON: {
-    value: function () {
-      return toJSON(this.$schema, this)
+    value: function (context = 'default') {
+      checkContext(this.$schema, context)
+
+      return toJSON(this.$schema[context], this)
     }
   },
   validate: {
-    value: function () {
-      return validate(this.$schema, this)
+    value: function (context = 'default') {
+      checkContext(this.$schema, context)
+
+      return validate(this.$schema[context], this)
     }
   }
 })
+
+function checkContext (schema, context) {
+  if (schema[context] === undefined) {
+    throw new Error('Invalid context')
+  }
+}
 
 export default schemaDefinition => {
   const schemaKeys = Object.keys(schemaDefinition)

@@ -1,7 +1,7 @@
 export default function validate (schema, data) {
-  const allErrors = Object.keys(schema).reduce((acc, currentKey) => {
-    const { error } = schema[currentKey].validator(data[currentKey], currentKey, data)
-    return error ? { ...acc, [currentKey]: error } : acc
+  const allErrors = Object.entries(schema).reduce((acc, [ propertyName, definition ]) => {
+    const { error } = definition.validator(data[propertyName], propertyName, data)
+    return error ? { ...acc, [propertyName]: error } : acc
   }, undefined)
 
   if (allErrors) {
