@@ -19,6 +19,24 @@ test('Given valid data, when factory is called, then it should create an object 
   t.deepEqual(result, data)
 })
 
+test('Given valid data, when factory is called, then it should create an object with $factory property pointing to the same factory', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+  const factory = subject(schema)
+
+  const result = factory(data)
+
+  t.is(result.$factory, factory)
+})
+
 test('Given data with extra fields, when factory is called, then it should create an object with only the keys from schema, dropping the unspecified ones', t => {
   const schema = {
     myProp1: {},

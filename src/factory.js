@@ -3,9 +3,12 @@ import validate from './validate'
 import toJSON from './to-json'
 import buildSchema from './build-schema'
 
-const buildDescriptors = (schema, validate) => ({
+const buildDescriptors = (schema, factory) => ({
   $schema: {
     value: schema
+  },
+  $factory: {
+    value: factory
   },
   toJSON: {
     value: function (context = 'default') {
@@ -34,11 +37,11 @@ export default schemaDefinition => {
 
   const schema = buildSchema(schemaDefinition)
 
-  return data => {
+  const factory = data => {
     const allowedData = pick(data, schemaKeys)
 
     return Object.assign(
-      Object.create(null, buildDescriptors(schema, validate)),
+      Object.create(null, buildDescriptors(schema, factory)),
       Object.keys(allowedData).reduce(
         (acc, currentKey) =>
           Object.assign(
@@ -49,4 +52,6 @@ export default schemaDefinition => {
       )
     )
   }
+
+  return factory
 }
