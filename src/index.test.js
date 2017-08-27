@@ -79,7 +79,7 @@ test('Given valid data with nested entity, when factory is called for parent ent
 
   const result = parentFactory(validData)
 
-  t.true(typeof result.childEntity.toJSON === 'function')
+  t.deepEqual(result.childEntity, childFactory(validData.childEntity))
 })
 
 test('Given nested child data with extra properties, when factory is called for parent entity, then it should create an object referencing the child entity excluding the extra properties', t => {
@@ -138,7 +138,7 @@ test('Given missing nested child data, when factory is called for parent entity,
   t.deepEqual(result, expected)
 })
 
-test('Given entity with validation and valid data, when validate is called, then it should not throw', t => {
+test('Given entity with validation and valid data, when validate is called, then it should not throw and return itself', t => {
   const schema = {
     prop1: {
       validator: validators.requiredString
@@ -181,7 +181,7 @@ test('Given entity with validation and invalid data, when validate is called, th
   t.true(error.details.hasOwnProperty('prop2'))
 })
 
-test('Given entity with nested entity and valid data, when validate is called, then it should not throw', t => {
+test('Given entity with nested entity and valid data, when validate is called, then it should not throw and return itself', t => {
   const childSchema = {
     childProp1: {
       validator: validators.requiredString
@@ -257,7 +257,7 @@ test('Given entity with nested entity and invalid data, when validate is called,
   t.true(error.details.childEntity.hasOwnProperty('childProp2'))
 })
 
-test('Given entity with missing validator for primitive properties, when validate is called, then it should not throw ', t => {
+test('Given entity with missing validator for primitive properties, when validate is called, then it should not throw  and return itself', t => {
   const schema = {
     prop1: {},
     prop2: {}
@@ -273,7 +273,7 @@ test('Given entity with missing validator for primitive properties, when validat
   t.is(result, instance)
 })
 
-test('Given entity with missing validator for nested entity property with valid data, when validate is called, then it should not throw ', t => {
+test('Given entity with missing validator for nested entity property with valid data, when validate is called, then it should not throw and return itself', t => {
   const childSchema = {
     childProp1: {
       validator: validators.requiredString
@@ -300,10 +300,11 @@ test('Given entity with missing validator for nested entity property with valid 
 
   const instance = parentFactory(validData)
 
-  t.notThrows(() => instance.validate())
+  const result = instance.validate()
+  t.is(result, instance)
 })
 
-test('Given entity with missing validator for nested entity property with invalidData, when validate is called, then it should not throw ', t => {
+test('Given entity with missing validator for nested entity property with invalidData, when validate is called, then it should not throw and return itself', t => {
   const childSchema = {
     childProp1: {
       validator: validators.requiredString
