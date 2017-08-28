@@ -76,7 +76,7 @@ test('Given entity with nested entity and valid data, when validate is called, t
 
   const parentSchema = {
     childEntity: {
-      validator: defaultValidators.delegate,
+      validator: defaultValidators.delegate(),
       factory: childFactory
     }
   }
@@ -185,7 +185,7 @@ test('Given entity with nested entity with `delegate` validator and invalid data
 
   const parentSchema = {
     childEntity: {
-      validator: defaultValidators.delegate,
+      validator: defaultValidators.delegate(),
       factory: childFactory
     }
   }
@@ -203,6 +203,41 @@ test('Given entity with nested entity with `delegate` validator and invalid data
   t.is(error.name, 'ValidationError')
   t.true(error.details.hasOwnProperty('childEntity'))
   t.true(error.details.childEntity.hasOwnProperty('childProp2'))
+})
+
+test('Given entity with nested entity with `delegate` validator for a given context and valid data for such context, when validate is called, then it should not throw and return itself', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    },
+    $contexts: {
+      myContext: {
+        $exclude: ['childProp2']
+      }
+    }
+  }
+  const childFactory = factoryFor(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      validator: defaultValidators.delegate('myContext'),
+      factory: childFactory
+    }
+  }
+  const parentFactory = factoryFor(parentSchema)
+
+  const validDataForContext = {
+    childEntity: {
+      childProp1: 'a'
+    }
+  }
+
+  const instance = parentFactory(validDataForContext)
+
+  t.is(instance.validate(), instance)
 })
 
 test('Given entity with context that excludes `prop2` and invalid data `prop2`, when validate is called with such context, then it should not throw and return itself', t => {
@@ -393,7 +428,7 @@ test('Give entity with nested entity collection and invalid data, when `validate
 
   const parentSchema = {
     children: {
-      validator: defaultValidators.delegate,
+      validator: defaultValidators.delegate(),
       factory: collectionFactoryFor(childFactory)
     }
   }
@@ -419,4 +454,46 @@ test('Give entity with nested entity collection and invalid data, when `validate
   t.truthy(error.details.children[0].childProp2)
   t.truthy(error.details.children[1].childProp1)
   t.truthy(error.details.children[1].childProp2)
+})
+
+test('Given entity with nested entity with <context> and overriden `delegate` validator for a given context and valid data for such context, when `validate(<context>)` is called, then it should not throw and return itself', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    },
+    $contexts: {
+      myContext: {
+        $exclude: ['childProp2']
+      }
+    }
+  }
+  const childFactory = factoryFor(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      validator: defaultValidators.delegate(),
+      factory: childFactory
+    },
+    $contexts: {
+      parentContext: {
+        $modify: {
+          childEntity: defaultValidators.delegate('myContext')
+        }
+      }
+    }
+  }
+  const parentFactory = factoryFor(parentSchema)
+
+  const validDataForContext = {
+    childEntity: {
+      childProp1: 'a'
+    }
+  }
+
+  const instance = parentFactory(validDataForContext)
+
+  t.is(instance.validate('parentContext'), instance)
 })
