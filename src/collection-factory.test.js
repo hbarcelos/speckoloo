@@ -49,7 +49,7 @@ test('Given a single object factory and an array of data, when collection factor
   t.deepEqual(result.toJSON(), validDataWithInstance.toJSON())
 })
 
-test('Given a single object factory and an array of invalid data, when `validate()` factory is called, then it should throw an error for each one of the invalid entity', t => {
+test('Given a single object factory and an array of invalid data, when `validate()` is called, then it should throw an error for each one of the invalid entity', t => {
   const singleSchema = {
     prop1: {
       validator: forbidAny
@@ -79,4 +79,27 @@ test('Given a single object factory and an array of invalid data, when `validate
   t.truthy(errors[0].details.prop2)
   t.truthy(errors[1].details.prop1)
   t.truthy(errors[1].details.prop2)
+})
+
+test('Given a single object factory and an array of valid data, when `validate()` is called, then it should not throw and return the entity itself', t => {
+  const singleSchema = {
+    prop1: {},
+    prop2: {}
+  }
+
+  const singleFactory = factoryFor(singleSchema)
+
+  const collectionFactory = subject(singleFactory)
+
+  const validData = [{
+    prop1: 'a',
+    prop2: 'b'
+  }, {
+    prop1: 'c',
+    prop2: 'd'
+  }]
+
+  const result = collectionFactory(validData)
+
+  t.is(result.validate(), result)
 })
