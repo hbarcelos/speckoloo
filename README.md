@@ -1,4 +1,4 @@
-# Speckoloo
+# Speckoloo [![Coverage Status](https://coveralls.io/repos/github/hbarcelos/speckoloo/badge.svg?branch=master)](https://coveralls.io/github/hbarcelos/speckoloo?branch=master)
 
 Domain entities inspired by [Speck][1].
 
