@@ -11,10 +11,9 @@
     "nyc": "nyc",
     "prepare": "npm run build",
     "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
-    "prepublishOnly": "npm run test && npm run lint",
     "require-npm4-to-publish": "semver -r '>=4.0.0' $(npm --version) || (echo 'NPM 4+ required to publish' && exit 1)",
-    "test": "ava",
-    "test:watch": "ava --watch"
+    "test": "ava src/**/*.test.js test/",
+    "test:watch": "npm run test -- --watch"
   },
   "repository": {
     "type": "git",

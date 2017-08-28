@@ -394,7 +394,9 @@ test('Give entity with nested entity collection and valid data, when `toJSON()` 
   const childFactory = factoryFor(childSchema)
 
   const parentSchema = {
-    children: collectionFactoryFor(childFactory)
+    children: {
+      factory: collectionFactoryFor(childFactory)
+    }
   }
 
   const factory = factoryFor(parentSchema)
