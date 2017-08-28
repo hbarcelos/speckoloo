@@ -6,8 +6,15 @@
   "scripts": {
     "test": "ava",
     "test:watch": "ava --watch",
+    "build": "babel src/ -d dist/",
+    "lint": "eslint src/",
     "nyc": "nyc",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
+    "require-npm4-to-publish": "semver -r '>=4.0.0' $(npm --version) || (echo 'NPM 4+ required to publish' && exit 1)",
+
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run test && npm run lint"
   },
   "repository": {
     "type": "git",
@@ -40,7 +47,9 @@
     "eslint-plugin-node": "^5.1.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "nyc": "^11.1.0"
+    "in-publish": "^2.0.0",
+    "nyc": "^11.1.0",
+    "semver": "^5.4.1"
   },
   "dependencies": {},
   "ava": {
