@@ -3,28 +3,40 @@ import validate from './validate'
 import toJSON from './to-json'
 import buildSchema from './build-schema'
 
-const buildDescriptors = (schema, factory) => ({
-  $schema: {
-    value: schema
-  },
-  $factory: {
-    value: factory
-  },
-  toJSON: {
-    value: function (context = 'default') {
-      checkContext(this.$schema, context)
+const buildDescriptors = (schema, factory, methods) => {
+  const methodDescriptors = Object.entries(methods)
+    .reduce(
+      (acc, [ methodName, method ]) => ({
+        ...acc,
+        [methodName]: { value: method }
+      }),
+      {}
+    )
 
-      return toJSON(this.$schema[context], this)
-    }
-  },
-  validate: {
-    value: function (context = 'default') {
-      checkContext(this.$schema, context)
+  return {
+    ...methodDescriptors,
+    $schema: {
+      value: schema
+    },
+    $factory: {
+      value: factory
+    },
+    toJSON: {
+      value: function (context = 'default') {
+        checkContext(this.$schema, context)
 
-      return validate(this.$schema[context], this)
+        return toJSON(this.$schema[context], this)
+      }
+    },
+    validate: {
+      value: function (context = 'default') {
+        checkContext(this.$schema, context)
+
+        return validate(this.$schema[context], this)
+      }
     }
   }
-})
+}
 
 function checkContext (schema, context) {
   if (schema[context] === undefined) {
@@ -33,20 +45,21 @@ function checkContext (schema, context) {
 }
 
 export default schemaDefinition => {
+  const { $methods = {}, $contexts = {}, ...definition } = schemaDefinition
+
+  const schema = buildSchema(definition, $contexts)
+
   const schemaKeys = Object.keys(schemaDefinition)
-
-  const schema = buildSchema(schemaDefinition)
-
   const factory = data => {
     const allowedData = pick(data, schemaKeys)
 
     return Object.assign(
-      Object.create(null, buildDescriptors(schema, factory)),
-      Object.keys(allowedData).reduce(
-        (acc, currentKey) =>
+      Object.create(null, buildDescriptors(schema, factory, $methods)),
+      Object.entries(allowedData).reduce(
+        (acc, [ key, value ]) =>
           Object.assign(
             acc,
-            { [currentKey]: (schemaDefinition[currentKey].factory || identity)(allowedData[currentKey]) }
+            { [key]: (schemaDefinition[key].factory || identity)(value) }
           ),
         {}
       )

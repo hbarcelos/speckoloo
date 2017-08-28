@@ -1,5 +1,5 @@
 import { test } from 'ava'
-import subject, { defaultValidators } from './index'
+import { factoryFor, collectionFactoryFor, defaultValidators } from './index'
 import { omit, pick } from './common'
 
 const validators = {
@@ -34,7 +34,7 @@ test('Given entity with validation and valid data, when validate is called, then
     prop1: 'a'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(validData)
 
@@ -57,7 +57,7 @@ test('Given entity with validation and invalid data, when validate is called, th
     prop1: 'a'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(invalidData)
 
@@ -72,7 +72,7 @@ test('Given entity with nested entity and valid data, when validate is called, t
       validator: validators.requiredString
     }
   }
-  const childFactory = subject(childSchema)
+  const childFactory = factoryFor(childSchema)
 
   const parentSchema = {
     childEntity: {
@@ -80,7 +80,7 @@ test('Given entity with nested entity and valid data, when validate is called, t
       factory: childFactory
     }
   }
-  const parentFactory = subject(parentSchema)
+  const parentFactory = factoryFor(parentSchema)
 
   const validData = {
     childEntity: {
@@ -103,7 +103,7 @@ test('Given entity with missing validator for primitive properties, when validat
 
   const emptyData = {}
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(emptyData)
 
@@ -120,14 +120,14 @@ test('Given entity with missing validator for nested entity property with valid 
       validator: validators.requiredString
     }
   }
-  const childFactory = subject(childSchema)
+  const childFactory = factoryFor(childSchema)
 
   const parentSchema = {
     childEntity: {
       factory: childFactory
     }
   }
-  const parentFactory = subject(parentSchema)
+  const parentFactory = factoryFor(parentSchema)
 
   const validData = {
     childEntity: {
@@ -151,14 +151,14 @@ test('Given entity with missing validator for nested entity property with invali
       validator: validators.requiredString
     }
   }
-  const childFactory = subject(childSchema)
+  const childFactory = factoryFor(childSchema)
 
   const parentSchema = {
     childEntity: {
       factory: childFactory
     }
   }
-  const parentFactory = subject(parentSchema)
+  const parentFactory = factoryFor(parentSchema)
 
   const invalidData = {
     childEntity: {
@@ -181,7 +181,7 @@ test('Given entity with nested entity with `delegate` validator and invalid data
       validator: validators.requiredString
     }
   }
-  const childFactory = subject(childSchema)
+  const childFactory = factoryFor(childSchema)
 
   const parentSchema = {
     childEntity: {
@@ -189,7 +189,7 @@ test('Given entity with nested entity with `delegate` validator and invalid data
       factory: childFactory
     }
   }
-  const parentFactory = subject(parentSchema)
+  const parentFactory = factoryFor(parentSchema)
 
   const invalidData = {
     childEntity: {
@@ -224,7 +224,7 @@ test('Given entity with context that excludes `prop2` and invalid data `prop2`, 
     prop1: 'a'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(invalidData)
 
@@ -255,7 +255,7 @@ test('Given entity with context that modifies `prop2` and valid data for such co
     prop2: 1
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(validDataForContext)
 
@@ -280,7 +280,7 @@ test('Given entity with context that excludes `prop2`, when `toJSON()` is called
     prop2: 'b'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(validData)
 
@@ -305,7 +305,7 @@ test('Given entity with context that includes `prop1`, when `toJSON()` is called
     prop2: 'b'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(validData)
 
@@ -323,7 +323,7 @@ test('Given invalid context, when `validate()` is called, then it should throw a
     prop1: 'a'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(validData)
 
@@ -341,11 +341,82 @@ test('Given invalid context, when `toJSON()` is called, then it should throw an 
     prop1: 'a'
   }
 
-  const factory = subject(schema)
+  const factory = factoryFor(schema)
 
   const instance = factory(validData)
 
   const error = t.throws(() => instance.toJSON('unexistentContext'))
 
   t.regex(error.message, /invalid context/i)
+})
+
+test('Give entity with nested entity collection and valid data, when `toJSON()` is called, then it should return the original data', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {}
+  }
+
+  const childFactory = factoryFor(childSchema)
+
+  const parentSchema = {
+    children: collectionFactoryFor(childFactory)
+  }
+
+  const factory = factoryFor(parentSchema)
+
+  const validData = {
+    children: [{
+      childProp1: 'a',
+      childProp2: 'b'
+    }, {
+      childProp1: 'c',
+      childProp2: 'd'
+    }]
+  }
+
+  const instance = factory(validData)
+
+  t.deepEqual(instance.toJSON(), validData)
+})
+
+test('Give entity with nested entity collection and invalid data, when `validate()` is called, then it should throw an error with appropriate error descriptions', t => {
+  const childSchema = {
+    childProp1: {
+      validator: defaultValidators.forbidAny
+    },
+    childProp2: {
+      validator: defaultValidators.forbidAny
+    }
+  }
+
+  const childFactory = factoryFor(childSchema)
+
+  const parentSchema = {
+    children: {
+      validator: defaultValidators.delegate,
+      factory: collectionFactoryFor(childFactory)
+    }
+  }
+
+  const factory = factoryFor(parentSchema)
+
+  const validData = {
+    children: [{
+      childProp1: 'a',
+      childProp2: 'b'
+    }, {
+      childProp1: 'c',
+      childProp2: 'd'
+    }]
+  }
+
+  const instance = factory(validData)
+
+  const error = t.throws(() => instance.validate())
+
+  t.true(error.details.children.length === 2)
+  t.truthy(error.details.children[0].childProp1)
+  t.truthy(error.details.children[0].childProp2)
+  t.truthy(error.details.children[1].childProp1)
+  t.truthy(error.details.children[1].childProp2)
 })

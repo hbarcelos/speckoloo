@@ -11,6 +11,10 @@ export function delegate (entity) {
     entity.validate()
     return { data: entity }
   } catch (e) {
+    if (Array.isArray(e)) {
+      return { error: e.map(e => e.details) }
+    }
+
     return { error: e.details }
   }
 }

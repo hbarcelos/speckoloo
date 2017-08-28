@@ -1,12 +1,10 @@
 import { allowAny } from './default-validators'
 import { omit, pick } from './common'
 
-export default function buildSchema (definition) {
-  const { $contexts = {}, ...propertyDefinition } = definition
+export default function buildSchema (definition, contexts) {
+  const defaultSchema = fillDefaultValidators(definition)
 
-  const defaultSchema = fillDefaultValidators(propertyDefinition)
-
-  const contextSchemas = Object.entries($contexts)
+  const contextSchemas = Object.entries(contexts)
     .reduce(
       (acc, [ contextName, contextDefinition ]) => ({
         [contextName]: applyOperators(contextDefinition, defaultSchema, contextName)

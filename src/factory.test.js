@@ -182,3 +182,56 @@ test('Given missing nested child data, when factory is called for parent entity,
   const result = parentFactory(missingChildEntityData).toJSON()
   t.deepEqual(result, expected)
 })
+
+test('Given valid data with nested entity, when factory is called for parent entity with data that is already an instance of child, then it should create an object referencing the child entity', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {},
+    childProp3: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    parentProp1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const validData = {
+    parentProp1: 'a',
+    childEntity: childFactory({
+      childProp1: 'b',
+      childProp2: 'c',
+      childProp3: 'd'
+    })
+  }
+
+  const result = parentFactory(validData)
+
+  t.deepEqual(result.childEntity, childFactory(validData.childEntity))
+})
+
+test('Given schema with $methods, when factory is called, then it should create an object with all methods from schema', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {},
+    $methods: {
+      myMethod () {
+        return `${this.myProp1}, ${this.myProp2}, ${this.myProp3}`
+      }
+    }
+  }
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+  const factory = subject(schema)
+
+  const result = factory(data).myMethod()
+
+  t.deepEqual(result, 'a, b, c')
+})
