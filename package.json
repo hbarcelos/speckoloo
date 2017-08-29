@@ -9,8 +9,10 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src/",
     "coverage-report": "nyc report",
+    "postinstall": "npm run build",
     "prepare": "npm run build",
     "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
+    "prepublishOnly": "npm run test && npm run build",
     "require-npm4-to-publish": "semver -r '>=4.0.0' $(npm --version) || (echo 'NPM 4+ required to publish' && exit 1)",
     "test": "ava src/**/*.test.js test/",
     "test:watch": "npm run test -- --watch"
