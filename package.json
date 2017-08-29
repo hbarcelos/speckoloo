@@ -9,7 +9,6 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src/",
     "coverage-report": "nyc report",
-    "postinstall": "npm run build",
     "postversion": "git push && git push --tags",
     "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
     "prepublishOnly": "npm run build",
