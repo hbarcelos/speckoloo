@@ -39,3 +39,47 @@ test('Given invalid data for a schema, when `validate` is called, then it should
   t.true(error.details.hasOwnProperty('prop1'))
   t.true(error.details.hasOwnProperty('prop2'))
 })
+
+test('Given validator returning falsy for valid data, when `validate` is called for valid instance, then it should not throw an error', async t => {
+  const schema = {
+    prop1: {
+      validator: () => undefined
+    },
+    prop2: {
+      validator: () => false
+    },
+    prop3: {
+      validator: () => null
+    },
+    prop4: {
+      validator: () => ''
+    }
+  }
+
+  const data = {
+    prop1: 'a',
+    prop2: 'b',
+    prop3: 'c',
+    prop4: 'd'
+  }
+
+  t.notThrows(() => subject(schema, data))
+})
+
+test('Given validator returning a truthy non-object value for valid data, when `validate` is called for valid instance, then it should not throw an error', async t => {
+  const schema = {
+    prop1: {
+      validator: () => 'OK'
+    },
+    prop2: {
+      validator: () => 'OK'
+    }
+  }
+
+  const data = {
+    prop1: 'a',
+    prop2: 'b'
+  }
+
+  t.notThrows(() => subject(schema, data))
+})

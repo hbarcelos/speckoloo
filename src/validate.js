@@ -1,6 +1,6 @@
 export default function validate (schema, data) {
   const allErrors = Object.entries(schema).reduce((acc, [ propertyName, definition ]) => {
-    const { error } = definition.validator(data[propertyName], propertyName, data)
+    const { error } = (definition.validator(data[propertyName], propertyName, data) || {})
     return error ? { ...acc, [propertyName]: error } : acc
   }, undefined)
 
