@@ -19,7 +19,7 @@ test('Given valid data, when factory is called, then it should create an object 
   t.deepEqual(result, data)
 })
 
-test('Given valid data, when factory is called, then it should create an object with $factory property pointing to the same factory', t => {
+test('Given valid data, when factory is called, then it should create an object with `$factory` property pointing to the same factory', t => {
   const schema = {
     myProp1: {},
     myProp2: {},
@@ -35,6 +35,27 @@ test('Given valid data, when factory is called, then it should create an object 
   const result = factory(data)
 
   t.is(result.$factory, factory)
+})
+
+test('Given already instantiated entity, when factory is called, then it should create a copy of the original data', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+  const factory = subject(schema)
+
+  const firstInstance = factory(data)
+
+  const secondInstance = factory(firstInstance)
+
+  t.not(secondInstance, firstInstance)
+  t.deepEqual(secondInstance, firstInstance)
 })
 
 test('Given data with extra fields, when factory is called, then it should create an object with only the keys from schema, dropping the unspecified ones', t => {
@@ -211,6 +232,39 @@ test('Given valid data with nested entity, when factory is called for parent ent
   const result = parentFactory(validData)
 
   t.deepEqual(result.childEntity, childFactory(validData.childEntity))
+})
+
+test('Given already instantiated composite entity, when factory is called, then it should create a copy of the original nested entity', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {},
+    childProp3: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    parentProp1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const validData = {
+    parentProp1: 'a',
+    childEntity: {
+      childProp1: 'b',
+      childProp2: 'c',
+      childProp3: 'd'
+    }
+  }
+
+  const firstInstance = parentFactory(validData)
+
+  const secondInstance = parentFactory(firstInstance)
+
+  t.not(secondInstance.childEntity, firstInstance.childEntity)
+  t.deepEqual(secondInstance.childEntity, firstInstance.childEntity)
 })
 
 test('Given schema with $methods, when factory is called, then it should create an object with all methods from schema', t => {

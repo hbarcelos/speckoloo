@@ -437,7 +437,7 @@ test('Give entity with nested entity collection and invalid data, when `validate
 
   const factory = factoryFor(parentSchema)
 
-  const validData = {
+  const invalidData = {
     children: [{
       childProp1: 'a',
       childProp2: 'b'
@@ -447,15 +447,14 @@ test('Give entity with nested entity collection and invalid data, when `validate
     }]
   }
 
-  const instance = factory(validData)
+  const instance = factory(invalidData)
 
   const error = t.throws(() => instance.validate())
 
-  t.true(error.details.children.length === 2)
-  t.truthy(error.details.children[0].childProp1)
-  t.truthy(error.details.children[0].childProp2)
-  t.truthy(error.details.children[1].childProp1)
-  t.truthy(error.details.children[1].childProp2)
+  t.truthy(error.details.children['item#0'].childProp1)
+  t.truthy(error.details.children['item#0'].childProp2)
+  t.truthy(error.details.children['item#1'].childProp1)
+  t.truthy(error.details.children['item#1'].childProp2)
 })
 
 test('Given entity with nested entity with <context> and overriden `delegate` validator for a given context and valid data for such context, when `validate(<context>)` is called, then it should not throw and return itself', t => {

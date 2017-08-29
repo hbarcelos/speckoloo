@@ -11,17 +11,21 @@ export default factory => {
       },
       validate: {
         value: function validate (context = 'default') {
-          const errors = instances.reduce((acc, item) => {
+          const errors = instances.reduce((acc, item, key) => {
             try {
               item.validate(context)
               return acc
             } catch (e) {
-              return acc.concat(e)
+              return { ...acc, [`item#${key}`]: e.details }
             }
-          }, [])
+          }, {})
 
-          if (errors.length > 0) {
-            throw errors
+          if (Object.keys(errors).length > 0) {
+            throw Object.assign(Object.create(Error.prototype), {
+              name: 'ValidationError',
+              message: 'Validation Error!',
+              details: errors
+            })
           }
 
           return this

@@ -74,11 +74,11 @@ test('Given a single object factory and an array of invalid data, when `validate
   const result = collectionFactory(validData)
 
   const errors = t.throws(() => result.validate())
-  t.true(errors.length === 2)
-  t.truthy(errors[0].details.prop1)
-  t.truthy(errors[0].details.prop2)
-  t.truthy(errors[1].details.prop1)
-  t.truthy(errors[1].details.prop2)
+
+  t.truthy(errors.details['item#0'].prop1)
+  t.truthy(errors.details['item#0'].prop2)
+  t.truthy(errors.details['item#1'].prop1)
+  t.truthy(errors.details['item#1'].prop2)
 })
 
 test('Given a single object factory and an array of valid data, when `validate()` is called, then it should not throw and return the entity itself', t => {
