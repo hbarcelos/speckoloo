@@ -3,6 +3,7 @@
   "version": "0.3.3",
   "description": "Domain entites inspired by Speck",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "scripts": {
     "build": "npm run clean && babel src/ -d dist/",
     "clean": "find ./dist -maxdepth 1 -exec rm -rf {} +",
@@ -12,7 +13,7 @@
     "postversion": "git push && git push --tags",
     "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
     "prepublishOnly": "npm run build",
-    "preversion": "npm run test",
+    "preversion": "npm run lint && npm run test",
     "require-npm4-to-publish": "semver -r '>=4.0.0' $(npm --version) || (echo 'NPM 4+ required to publish' && exit 1)",
     "test": "ava src/**/*.test.js test/",
     "test:watch": "npm run test -- --watch"
