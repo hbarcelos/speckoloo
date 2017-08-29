@@ -1,11 +1,16 @@
-# Speckoloo [![Coverage Status](https://coveralls.io/repos/github/hbarcelos/speckoloo/badge.svg?branch=master)](https://coveralls.io/github/hbarcelos/speckoloo?branch=master) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+# Speckoloo [![Node Version](https://img.shields.io/badge/node-%3E=6.0.0-green.svg)](https://nodejs.org) [![Coverage Status](https://coveralls.io/repos/github/hbarcelos/speckoloo/badge.svg?branch=master)](https://coveralls.io/github/hbarcelos/speckoloo?branch=master) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Domain entities inspired by [Speck][1].
+
+## ToC
 
 * [Motivation](#motivation)
 * [Design rationale](#design-rationale)
 * [Functionalities](#functionalities)
 * [Interfaces](#interfaces)
+* [Installation](#installation)
+  + [NPM](#npm)
+  + [Manually](#manually)
 * [Usage](#usage)
   + [Schemas](#schemas)
     - [Basic structure](#basic-structure)
@@ -99,6 +104,23 @@ interface JSONSerializable {
 - `validate`: returns the object itself if its data is valid or throws a `ValidationError`
 
 Both `toJSON` and `validate` methods are [context][9]-aware and may receive an optional `context` param. If such context doesn't exist, both will throw an `Error`.
+
+## Installation
+
+### NPM
+
+```bash
+npm install --save speckoloo
+```
+
+### Manually
+
+```
+git clone https://github.com/hbarcelos/speckoloo.git
+cd speckoloo
+npm install
+npm run build
+```
 
 ## Usage
 
@@ -922,7 +944,17 @@ instance.validate() // will call validate for each entity
 
 ## Contributing
 
-Feel free to open an issue or creating a PR.
+Feel free to open an issue, fork or create a PR.
+
+`speckoloo` uses [StandardJS][10] and I'm willing to keep it production dependency-free.
+
+Before creating a PR, make sure you run:
+
+```bash
+npm run lint && npm run test
+```
+
+---
 
 Some missing features:
 
@@ -939,3 +971,4 @@ Some missing features:
  [7]: https://softwareengineering.stackexchange.com/a/305880/91694
  [8]: https://nodejs.org/api/process.html#process_event_warning
  [9]: https://martinfowler.com/bliki/BoundedContext.html
+ [10]: https://standardjs.com/
