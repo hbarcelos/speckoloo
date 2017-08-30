@@ -7,6 +7,7 @@ export default function buildSchema (definition, contexts) {
   const contextSchemas = Object.entries(contexts)
     .reduce(
       (acc, [ contextName, contextDefinition ]) => ({
+        ...acc,
         [contextName]: applyOperators(contextDefinition, defaultSchema, contextName)
       }),
       {}

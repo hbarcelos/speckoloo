@@ -119,3 +119,17 @@ export const schemaWithContextExcludeAndModify = {
     }
   }
 }
+
+export const schemaWithMultipleContexts = {
+  field1: {},
+  field2: {},
+  field3: {},
+  $contexts: {
+    context1: {
+      $exclude: ['field1']
+    },
+    context2: {
+      $exclude: ['field2']
+    }
+  }
+}

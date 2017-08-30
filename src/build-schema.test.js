@@ -127,3 +127,11 @@ test('[Contexts] Given schema definition with a context using `$exclude` and `$m
     omit(result.default, ['field1', 'field2'])
   )
 })
+
+test('[Contexts] Given schema definition with multiple contexts, when final schema is built, then all contexts should be available', t => {
+  const { $contexts = {}, ...definition } = fixtures.schemaWithMultipleContexts
+  const result = subject(definition, $contexts)
+
+  t.true(result.hasOwnProperty('context1'))
+  t.true(result.hasOwnProperty('context2'))
+})
