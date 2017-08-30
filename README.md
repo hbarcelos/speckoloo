@@ -1,4 +1,6 @@
-# Speckoloo [![Node Version](https://img.shields.io/badge/node-%3E=6.0.0-green.svg)](https://nodejs.org) [![Coverage Status](https://coveralls.io/repos/github/hbarcelos/speckoloo/badge.svg?branch=master)](https://coveralls.io/github/hbarcelos/speckoloo?branch=master) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# Speckoloo
+
+[![Node Version](https://img.shields.io/badge/node-%3E=6.0.0-green.svg)](https://nodejs.org) [![Coverage Status](https://coveralls.io/repos/github/hbarcelos/speckoloo/badge.svg?branch=master)](https://coveralls.io/github/hbarcelos/speckoloo?branch=master) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Domain entities inspired by [Speck][1].
 
@@ -115,7 +117,7 @@ npm install --save speckoloo
 
 ### Manually
 
-```
+```bash
 git clone https://github.com/hbarcelos/speckoloo.git
 cd speckoloo
 npm install
