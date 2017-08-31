@@ -24,3 +24,5 @@ export const intersection = (a, b) => Array.from(
   new Set([...a]
     .filter(x => (new Set([...b])).has(x)))
 )
+
+export const isUndefinedOrNull = x => x === undefined || x === null

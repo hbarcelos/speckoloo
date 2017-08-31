@@ -1,4 +1,4 @@
-import { pick, omitBy, identity, not } from './common'
+import { pick, omitBy, identity, isUndefinedOrNull } from './common'
 import validate from './validate'
 import toJSON from './to-json'
 import buildSchema from './build-schema'
@@ -49,10 +49,11 @@ function nestedFactoryWrapper (factory) {
     return
   }
 
-  return data =>
-    Object.keys(data).length === 0
+  return data => {
+    return Object.keys(data).length === 0
       ? undefined
       : factory(data)
+  }
 }
 
 export default schemaDefinition => {
@@ -62,12 +63,17 @@ export default schemaDefinition => {
 
   const schemaKeys = Object.keys(definition)
   const factory = (data = {}) => {
+    /**
+     * The line bellow also covers the case when data is `null`.
+     */
+    data = data || {}
+
     const allowedData = Object.keys(data).length === 0
       ? {}
-      : omitBy(pick(
-        data, // handles case where data was defined as a falsy value
-        schemaKeys
-      ), not(identity))
+      : omitBy(
+        pick(data, schemaKeys),
+        isUndefinedOrNull
+      )
 
     return Object.assign(
       Object.create(null, buildDescriptors(schema, factory, $methods)),

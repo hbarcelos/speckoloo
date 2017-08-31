@@ -333,6 +333,7 @@ test('Given data that is not an object, when factory is called, then it should r
   const factory = subject(schema)
 
   const invalidParams = [
+    null,
     'some string',
     [],
     ['non-empty array'],
