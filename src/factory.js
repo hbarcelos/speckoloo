@@ -50,8 +50,12 @@ export default schemaDefinition => {
   const schema = buildSchema(definition, $contexts)
 
   const schemaKeys = Object.keys(definition)
-  const factory = data => {
+  const factory = (data = {}) => {
     const allowedData = pick(data, schemaKeys)
+
+    if (Object.keys(allowedData).length === 0) {
+      return undefined
+    }
 
     return Object.assign(
       Object.create(null, buildDescriptors(schema, factory, $methods)),

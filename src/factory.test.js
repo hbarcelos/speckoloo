@@ -289,3 +289,83 @@ test('Given schema with $methods, when factory is called, then it should create 
 
   t.deepEqual(result, 'a, b, c')
 })
+
+test('Given no data, when factory is called, then it should properly return undefined', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+
+  const factory = subject(schema)
+
+  const result = factory()
+
+  t.is(result, undefined)
+})
+
+test('Given data that does not contain any valid property, when factory is called, then it should return undefined', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+
+  const factory = subject(schema)
+
+  const result = factory({
+    unexistentProp: 'x'
+  })
+
+  t.is(result, undefined)
+})
+
+test('Given data that is not an object, when factory is called, then it should return undefined', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {},
+    toUpperCase: {}, // will it blow up for string?
+    length: {} // will it blow up for arrays?
+  }
+
+  const factory = subject(schema)
+
+  const invalidParams = [
+    'some string',
+    [],
+    ['non-empty array'],
+    123123,
+    Symbol('foo'),
+    /regex/
+  ]
+
+  invalidParams.map(param => {
+    t.is(factory(param), undefined)
+  })
+})
+
+test('Given data with empty value for nested entity, when factory is called for parent entity, then the resulting object should not have a property for such nested entity', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {},
+    childProp3: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    parentProp1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const validData = {
+    parentProp1: 'a'
+  }
+
+  const result = parentFactory(validData)
+
+  t.deepEqual(result.toJSON(), validData)
+})
