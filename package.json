@@ -15,8 +15,8 @@
     "prepublishOnly": "npm run build",
     "preversion": "npm run lint && npm run test",
     "require-npm4-to-publish": "semver -r '>=4.0.0' $(npm --version) || (echo 'NPM 4+ required to publish' && exit 1)",
-    "test": "ava src/**/*.test.js test/",
-    "test:watch": "npm run test -- --watch"
+    "test": "ava",
+    "test:watch": "ava --watch"
   },
   "repository": {
     "type": "git",

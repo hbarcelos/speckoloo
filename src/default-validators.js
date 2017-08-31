@@ -12,11 +12,11 @@ export function delegate (context) {
       entity.validate(context)
       return { data: entity }
     } catch (e) {
-      if (Array.isArray(e)) {
-        return { error: e.map(e => e.details) }
+      if (e.name === 'ValidationError') {
+        return { error: e.details }
       }
 
-      return { error: e.details }
+      return { error: e.message }
     }
   }
 }
