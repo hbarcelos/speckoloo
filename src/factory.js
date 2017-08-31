@@ -49,7 +49,7 @@ export default schemaDefinition => {
 
   const schema = buildSchema(definition, $contexts)
 
-  const schemaKeys = Object.keys(schemaDefinition)
+  const schemaKeys = Object.keys(definition)
   const factory = data => {
     const allowedData = pick(data, schemaKeys)
 
