@@ -170,7 +170,7 @@ If the validator returns a `ValidationError`, then it's interpreted as the valid
 `speckoloo` provides 3 default validators:
 - `allowAny`: allows any value
 - `forbidAny`: forbids any value
-- `delegate(context: string)`: delegates the validation to a nested entity.
+- `delegate(context?: string, options?:object)`: delegates the validation to a nested entity.
 
 If no validator is provided for a property, `allowAny` will be used by default:
 
@@ -712,7 +712,7 @@ Will throw:
 }
 ```
 
-Optionally it's possible to specify a context for the `delegate` function, that will be forwarded to the nested entity `validate()` method:
+It's possible to specify a context for the `delegate` function, that will be forwarded to the nested entity `validate()` method:
 
 ```javascript
 // ...
@@ -731,6 +731,76 @@ const parentSchema = {
 
 instance.validate() // <--- Will call child.validate('someContext')
 ```
+
+---
+
+**NOTICE:** By default, `delegate` will not validate the entity when data is missing.
+
+```javascript
+const parentSchema = {
+  prop1: {
+    validator: requiredString
+  }
+  child: {
+    factory: ChildFactory,
+    validator: defaultValidators.delegate()
+  }
+}
+
+const parentFactory = factoryFor(parentSchema)
+
+const instance = parentFactory({
+  prop1: 'a'
+})
+
+// ...
+
+instance.validate() // <--- Will return the instance itself
+```
+
+To change this behavior, there is a `required` param in `options` that can be used:
+
+```javascript
+const parentSchema = {
+  prop1: {
+    validator: requiredString
+  }
+  child: {
+    factory: ChildFactory,
+    validator: defaultValidators.delegate({ required: true }) // <----- changed here
+  }
+}
+
+const parentFactory = factoryFor(parentSchema)
+
+const instance = parentFactory({
+  prop1: 'a'
+})
+
+// ...
+
+instance.validate() // <--- Will throw
+```
+
+Output:
+
+```javascript
+{
+  name: 'ValidationError',
+  message: 'Validation Error!',
+  details: {
+    child: '`child` is required'
+  }
+}
+```
+
+It's also possible to combine both `context` with `options`. Use `context` as first argument and `options` as second:
+
+```javascript
+defaultValidators.delegate('myContext', { required: true })
+```
+
+---
 
 A common use case is validating the composite entity on context `"A"`, in which the nested entity must be in context `"B"`. In this case, `delegate` can be combined with `$modify` operator for context definition:
 

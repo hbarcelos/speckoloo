@@ -1,4 +1,4 @@
-import { pick, identity } from './common'
+import { pick, omitBy, identity, not } from './common'
 import validate from './validate'
 import toJSON from './to-json'
 import buildSchema from './build-schema'
@@ -44,6 +44,17 @@ function checkContext (schema, context) {
   }
 }
 
+function nestedFactoryWrapper (factory) {
+  if (factory === undefined) {
+    return
+  }
+
+  return data =>
+    Object.keys(data).length === 0
+      ? undefined
+      : factory(data)
+}
+
 export default schemaDefinition => {
   const { $methods = {}, $contexts = {}, ...definition } = schemaDefinition
 
@@ -51,11 +62,12 @@ export default schemaDefinition => {
 
   const schemaKeys = Object.keys(definition)
   const factory = (data = {}) => {
-    const allowedData = pick(data, schemaKeys)
-
-    if (Object.keys(allowedData).length === 0) {
-      return undefined
-    }
+    const allowedData = Object.keys(data).length === 0
+      ? {}
+      : omitBy(pick(
+        data, // handles case where data was defined as a falsy value
+        schemaKeys
+      ), not(identity))
 
     return Object.assign(
       Object.create(null, buildDescriptors(schema, factory, $methods)),
@@ -63,7 +75,7 @@ export default schemaDefinition => {
         (acc, [ key, value ]) =>
           Object.assign(
             acc,
-            { [key]: (schemaDefinition[key].factory || identity)(value) }
+            { [key]: (nestedFactoryWrapper(schemaDefinition[key].factory) || identity)(value) }
           ),
         {}
       )

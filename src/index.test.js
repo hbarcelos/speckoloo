@@ -205,6 +205,69 @@ test('Given entity with nested entity with `delegate` validator and invalid data
   t.true(error.details.childEntity.hasOwnProperty('childProp2'))
 })
 
+test('Given entity with nested entity with `delegate` validator with `required` option = true and data missing for nested, when validate is called, then it should throw', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    }
+  }
+  const childFactory = factoryFor(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      validator: defaultValidators.delegate({ required: true }),
+      factory: childFactory
+    }
+  }
+  const parentFactory = factoryFor(parentSchema)
+
+  const invalidData = {}
+
+  const instance = parentFactory(invalidData)
+
+  const error = t.throws(() => instance.validate())
+
+  t.is(error.name, 'ValidationError')
+  t.notRegex(error.message, /cannot read property 'validate' of undefined/i)
+  t.true(error.details.hasOwnProperty('childEntity'))
+})
+
+test('Given entity with nested entity with `delegate` validator with context and `required` option = true and data missing for nested, when validate is called, then it should throw', t => {
+  const childSchema = {
+    childProp1: {
+      validator: validators.requiredString
+    },
+    childProp2: {
+      validator: validators.requiredString
+    },
+    $contexts: {
+      myContext: {}
+    }
+  }
+  const childFactory = factoryFor(childSchema)
+
+  const parentSchema = {
+    childEntity: {
+      validator: defaultValidators.delegate('myContext', { required: true }),
+      factory: childFactory
+    }
+  }
+  const parentFactory = factoryFor(parentSchema)
+
+  const invalidData = {}
+
+  const instance = parentFactory(invalidData)
+
+  const error = t.throws(() => instance.validate())
+
+  t.is(error.name, 'ValidationError')
+  t.notRegex(error.message, /cannot read property 'validate' of undefined/i)
+  t.true(error.details.hasOwnProperty('childEntity'))
+})
+
 test('Given entity with nested entity with `delegate` validator for a given context and valid data for such context, when validate is called, then it should not throw and return itself', t => {
   const childSchema = {
     childProp1: {

@@ -1,5 +1,6 @@
 import { test } from 'ava'
 import subject from './factory'
+import { pick } from './common'
 
 test('Given valid data, when factory is called, then it should create an object with all keys from schema', t => {
   const schema = {
@@ -290,7 +291,7 @@ test('Given schema with $methods, when factory is called, then it should create 
   t.deepEqual(result, 'a, b, c')
 })
 
-test('Given no data, when factory is called, then it should properly return undefined', t => {
+test('Given no data, when factory is called, then it should properly return an empty entity', t => {
   const schema = {
     myProp1: {},
     myProp2: {},
@@ -301,10 +302,10 @@ test('Given no data, when factory is called, then it should properly return unde
 
   const result = factory()
 
-  t.is(result, undefined)
+  t.deepEqual(result.toJSON(), {})
 })
 
-test('Given data that does not contain any valid property, when factory is called, then it should return undefined', t => {
+test('Given data that does not contain any valid property, when factory is called, then it should return an empty entity', t => {
   const schema = {
     myProp1: {},
     myProp2: {},
@@ -317,10 +318,10 @@ test('Given data that does not contain any valid property, when factory is calle
     unexistentProp: 'x'
   })
 
-  t.is(result, undefined)
+  t.deepEqual(result.toJSON(), {})
 })
 
-test('Given data that is not an object, when factory is called, then it should return undefined', t => {
+test('Given data that is not an object, when factory is called, then it should return an empty entity', t => {
   const schema = {
     myProp1: {},
     myProp2: {},
@@ -341,11 +342,11 @@ test('Given data that is not an object, when factory is called, then it should r
   ]
 
   invalidParams.map(param => {
-    t.is(factory(param), undefined)
+    t.deepEqual(factory(param).toJSON(), {})
   })
 })
 
-test('Given data with empty value for nested entity, when factory is called for parent entity, then the resulting object should not have a property for such nested entity', t => {
+test('Given data with no value for nested entity, when factory is called for parent entity, then the resulting object should not have a property for such nested entity', t => {
   const childSchema = {
     childProp1: {},
     childProp2: {},
@@ -361,11 +362,71 @@ test('Given data with empty value for nested entity, when factory is called for 
   }
   const parentFactory = subject(parentSchema)
 
-  const validData = {
+  const missingData = {
     parentProp1: 'a'
   }
 
-  const result = parentFactory(validData)
+  const result = parentFactory(missingData)
 
-  t.deepEqual(result.toJSON(), validData)
+  t.deepEqual(result.toJSON(), missingData)
+})
+
+test('Given data with falsy value for nested entity, when factory is called for parent entity, then the resulting object should not have a property for such nested entity', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {},
+    childProp3: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    parentProp1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const falsyValues = [undefined, null, false, '', 0, NaN]
+
+  falsyValues.map(value => {
+    const invalidData = {
+      parentProp1: 'a',
+      childEntity: null
+    }
+
+    const result = parentFactory(invalidData)
+
+    t.deepEqual(result.toJSON(), pick(invalidData, ['parentProp1']), `Failed for ${value}`)
+  })
+})
+
+test('Given data with truthy non-object value for nested entity, when factory is called for parent entity, then the resulting object should not have a property for such nested entity', t => {
+  const childSchema = {
+    childProp1: {},
+    childProp2: {},
+    childProp3: {}
+  }
+  const childFactory = subject(childSchema)
+
+  const parentSchema = {
+    parentProp1: {},
+    childEntity: {
+      factory: childFactory
+    }
+  }
+  const parentFactory = subject(parentSchema)
+
+  const falsyValues = [undefined, null, false, '', 0, NaN]
+
+  falsyValues.map(value => {
+    const invalidData = {
+      parentProp1: 'a',
+      childEntity: true
+    }
+
+    const result = parentFactory(invalidData)
+
+    t.deepEqual(result.toJSON(), pick(invalidData, ['parentProp1']), `Failed for ${value}`)
+  })
 })
