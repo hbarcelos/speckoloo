@@ -321,6 +321,26 @@ test('Given data that does not contain any valid property, when factory is calle
   t.deepEqual(result.toJSON(), {})
 })
 
+test('Given schema with property `factory`, when factory is called with missing data for such property, then it should return an entity that does not contain the referred property', t => {
+  const schema = {
+    myProp1: {
+      fatory: String
+    },
+    myProp2: {}
+  }
+
+  const factory = subject(schema)
+
+  const data = {
+    myProp2: 'a'
+  }
+
+  const result = factory(data)
+
+  t.deepEqual(result.toJSON(), data)
+  t.is(result.myProp1, undefined)
+})
+
 test('Given data that is not an object, when factory is called, then it should return an empty entity', t => {
   const schema = {
     myProp1: {},

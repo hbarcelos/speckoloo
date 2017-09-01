@@ -72,6 +72,21 @@ test('[Validators] Given schema definition with validators, when final schema is
   t.is(result.default.childEntity.validator, fixtures.schemaWithCustomValidators.childEntity.validator)
 })
 
+test('[Skippable] Given schema definition with no `skippable` option, when final schema is built, then it should have a `skippable` option defined to `false`', t => {
+  const { $contexts = {}, ...definition } = fixtures.schemaWithCustomValidators
+  const result = subject(definition, $contexts)
+
+  t.is(result.default.field1.skippable, false)
+  t.is(result.default.childEntity.skippable, false)
+})
+
+test('[Skippable] Given schema definition with `skippable` option, when final schema is built, then it should have a `skippable` option as defined in schema', t => {
+  const { $contexts = {}, ...definition } = fixtures.schemaWithSkippable
+  const result = subject(definition, $contexts)
+
+  t.is(result.default.field1.skippable, fixtures.schemaWithSkippable.field1.skippable)
+})
+
 test('[Contexts] Given schema definition with a context using `$exclude`, when final schema is built, then it should have a context schema excluding the properties declared', t => {
   const { $contexts = {}, ...definition } = fixtures.schemaWithContextExclude
   const result = subject(definition, $contexts)
@@ -126,6 +141,13 @@ test('[Contexts] Given schema definition with a context using `$exclude` and `$m
     omit(result.contextWithExcludeAndModify, ['field1', 'field2']),
     omit(result.default, ['field1', 'field2'])
   )
+})
+
+test('[Contexts] Given schema definition with a context using `$skip`, when final schema is built, then it should modify only the properties in `$skip` to have the values set for `skippable` option', t => {
+  const { $contexts = {}, ...definition } = fixtures.schemaWithContextSkip
+  const result = subject(definition, $contexts)
+
+  t.is(result.contextWithSkip.field1.skippable, true)
 })
 
 test('[Contexts] Given schema definition with multiple contexts, when final schema is built, then all contexts should be available', t => {

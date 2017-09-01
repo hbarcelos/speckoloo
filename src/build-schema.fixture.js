@@ -11,6 +11,13 @@ export const schemaWithoutCustomValidators = {
   }
 }
 
+export const schemaWithSkippable = {
+  field1: {
+    validator: forbidAny,
+    skippable: true
+  }
+}
+
 export const schemaWithCustomValidators = {
   field1: {
     validator: someValidator
@@ -73,6 +80,17 @@ export const schemaWithContextModify = {
       $modify: {
         field1: forbidAny
       }
+    }
+  }
+}
+
+export const schemaWithContextSkip = {
+  field1: {},
+  field2: {},
+  field3: {},
+  $contexts: {
+    contextWithSkip: {
+      $skip: ['field1']
     }
   }
 }
