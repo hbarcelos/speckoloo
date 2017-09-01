@@ -1,5 +1,5 @@
 import { allowAny } from './default-validators'
-import { omit, pick, intersection, pipe, curry } from './common'
+import { omit, pick, intersection } from './common'
 
 export default function buildSchema (definition, contexts) {
   const defaultSchema = fillDefaultValues(definition)
