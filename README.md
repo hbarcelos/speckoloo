@@ -6,41 +6,47 @@ Domain entities inspired by [Speck][1].
 
 ## ToC
 
-* [Motivation](#motivation)
-* [Design rationale](#design-rationale)
-* [Functionalities](#functionalities)
-* [Interfaces](#interfaces)
-* [Installation](#installation)
-  + [NPM](#npm)
-  + [Manually](#manually)
-* [Usage](#usage)
-  + [Schemas](#schemas)
-    - [Basic structure](#basic-structure)
-    - [Validators](#validators)
-      * [Default validators](#default-validators)
-      * [Creating custom validators](#creating-custom-validators)
-    - [Factory](#factory)
-    - [Methods](#methods)
-    - [Contexts](#contexts)
-      * [Exclude properties](#exclude-properties)
-      * [Include only some properties](#include-only-some-properties)
-      * [Modifying the validator of a property](#modifying-the-validator-of-a-property)
-  + [Validation](#validation)
-    - [Default validation](#default-validation)
-    - [Context-aware validation](#context-aware-validation)
-  + [Serialization](#serialization)
-    - [Default serialization](#default-serialization)
-    - [Context-aware serialization](#context-aware-serialization)
-  + [Composite entities](#composite-entities)
-    - [Composite entities serialization](#composite-entities-serialization)
-    - [Composite entities validation](#composite-entities-validation)
-  + [Collection entities](#collection-entities)
-    - [Get an entity from a collection](#get-an-entity-from-a-collection)
-    - [Iterate over a collection](#iterate-over-a-collection)
-    - [Collection serialization](#collection-serialization)
-    - [Collection validation](#collection-validation)
-    - [Nested collections](#nested-collections)
-* [Contributing](#contributing)
+<!-- toc -->
+
+- [Motivation](#motivation)
+- [Design rationale](#design-rationale)
+- [Functionalities](#functionalities)
+- [Interfaces](#interfaces)
+- [Installation](#installation)
+  * [NPM](#npm)
+  * [Manually](#manually)
+- [Usage](#usage)
+  * [Schemas](#schemas)
+    + [Basic structure](#basic-structure)
+    + [Validator](#validator)
+      - [Default validators](#default-validators)
+      - [Creating custom validators](#creating-custom-validators)
+    + [Optional properties](#optional-properties)
+    + [Factory](#factory)
+    + [Methods](#methods)
+    + [Contexts](#contexts)
+      - [Exclude properties](#exclude-properties)
+      - [Include only some properties](#include-only-some-properties)
+      - [Modifying the validator of a property](#modifying-the-validator-of-a-property)
+      - [Skipping validation](#skipping-validation)
+  * [Validation](#validation)
+    + [Default validation](#default-validation)
+    + [Context-aware validation](#context-aware-validation)
+  * [Serialization](#serialization)
+    + [Default serialization](#default-serialization)
+    + [Context-aware serialization](#context-aware-serialization)
+  * [Composite entities](#composite-entities)
+    + [Composite entities serialization](#composite-entities-serialization)
+    + [Composite entities validation](#composite-entities-validation)
+  * [Collection entities](#collection-entities)
+    + [Get an entity from a collection](#get-an-entity-from-a-collection)
+    + [Iterate over a collection](#iterate-over-a-collection)
+    + [Collection serialization](#collection-serialization)
+    + [Collection validation](#collection-validation)
+    + [Nested collections](#nested-collections)
+- [Contributing](#contributing)
+
+<!-- tocstop -->
 
 ## Motivation
 
@@ -208,6 +214,37 @@ const mySchema = {
 }
 ```
 
+#### Optional properties
+
+To make a property optional, there is the `skippable` property in the schema definition.
+
+When set to `true`, it means that the `validator` will not be called when data is present.
+
+This is useful because it doesn't force the definition of two validators to handle the case when an empty value is allowed:
+
+```javascript
+const string = (value, key) => {
+  if (value !== String(value)) {
+    return {
+        error: `Value ${key} must be a string.`
+    }
+  }
+  // Returning `undefined` means the validation has passed
+}
+
+const mySchema = {
+  myProp1: {
+    validator: string,
+    skippable: true
+  }
+  //...
+}
+```
+
+When `myProp1` is not set, the `validator` will not run.
+
+This is specially useful when used in context definition (see [`$skip`](#skipping-validation)).
+
 #### Factory
 
 To transform data on creation, there is the `factory` property in the schema definition.
@@ -233,11 +270,11 @@ const mySchema = {
 const MyFactory = factoryFor(mySchema)
 
 const instance = MyFactory({
-  prop1: 1,
-  prp2: 2
+  myProp1: 1,
+  myProp2: 2
 })
 
-console.log(instance.prop1)
+console.log(instance.myProp1)
 ```
 
 Output:
@@ -246,6 +283,21 @@ Output:
 '1' // <--- this is a string
 ```
 
+**NOTICE:** `factory` is called only when property value is not `undefined`:
+
+```javascript
+const instance = MyFactory({
+  myProp2: 2
+})
+
+console.log(instance)
+```
+
+Output:
+
+```javascript
+{ myProp2: 2 }
+```
 #### Methods
 
 An important part of DDD rationale is that entities should be self-contained in terms of business logic that relates only to them.
@@ -315,6 +367,7 @@ Currently available operators are:
 - `$include`: considers only the given properties for the context.
 - `$exclude`: removes the given properties from the context.
 - `$modify`: changes the validators for the specified properties.
+- `$skip`: skips the validation if data is not present.
 
 Consider a `User` entity:
 
@@ -416,6 +469,42 @@ const schema = {
   }
 }
 ```
+
+##### Skipping validation
+
+Sometimes there's a need to allow skipping validation when data is not present. The most common use case is entity patching, when only a subset of the entity is provided.
+
+Until `0.4.x`, to do that you needed to redeclare the validator for a property on a given context:
+
+```javascript
+const schema = {
+  prop1: requiredString,
+  prop2: requiredString,
+  $contexts: {
+    context1: {
+      $modify: {
+        prop1: string // <--- a validator that allows a string to be empty
+      }
+    }
+  }
+}
+```
+
+As of `0.5.0`, there is a new operator called `$skip`, that shortens the code above to:
+
+```javascript
+const schema = {
+  prop1: requiredString,
+  prop2: requiredString,
+  $contexts: {
+    context1: {
+      $skip: ['prop1']
+    }
+  }
+}
+```
+
+**NOTICE:** the main difference between `$exclude` and `$skip` is that the former will completely exclude the property from schema definition, regardless it's present on data or not. The latter will only skip the validation when the value is not present (`=== undefined`); if you provide an invalid value, the validation will fail.
 
 ### Validation
 

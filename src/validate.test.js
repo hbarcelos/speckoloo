@@ -18,6 +18,26 @@ test('Given valid data for a schema, when `validate` is called, then it should n
   t.is(result, data)
 })
 
+test('Given missing data for field in a schema with `skippable` = true for such field, when `validate` is called, then it should not throw and return the object itself', t => {
+  const schema = {
+    prop1: {
+      validator: allowAny
+    },
+    prop2: {
+      validator: forbidAny,
+      skippable: true
+    }
+  }
+
+  const data = {
+    prop1: 'a'
+  }
+
+  const result = subject(schema, data)
+
+  t.is(result, data)
+})
+
 test('Given invalid data for a schema, when `validate` is called, then it should throw an error describing all validation errors within the `details` property', async t => {
   const schema = {
     prop1: {

@@ -26,3 +26,15 @@ export const intersection = (a, b) => Array.from(
 )
 
 export const isUndefinedOrNull = x => x === undefined || x === null
+
+export const compose2 = (f, g) => (...args) => f(g(...args))
+
+export const compose = (...fns) => fns.reduce(compose2)
+
+export const pipe = (...fns) => fns.reduceRight(compose2)
+
+export const partial = (fn, arg1) => (...args) => fn(arg1, ...args)
+export const curry = (fn, ...args) =>
+  args.length === fn.length
+    ? fn(...args)
+    : curry.bind(this, fn, ...args)
