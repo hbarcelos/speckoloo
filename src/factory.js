@@ -49,11 +49,10 @@ function nestedFactoryWrapper (factory) {
     return
   }
 
-  return data => {
-    return Object.keys(data).length === 0
+  return data =>
+    isUndefinedOrNull(data)
       ? undefined
       : factory(data)
-  }
 }
 
 export default schemaDefinition => {

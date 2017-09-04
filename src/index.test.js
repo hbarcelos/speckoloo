@@ -66,6 +66,28 @@ test('Given entity with validation and invalid data, when validate is called, th
   t.true(error.details.hasOwnProperty('prop2'))
 })
 
+test.only('Given entity with factory and valid data, when factory is called, then it return an object containing the property', t => {
+  const schema = {
+    prop1: {
+      factory: Number
+    },
+    prop2: {
+      factory: Number
+    }
+  }
+
+  const validData = {
+    prop1: '1000',
+    prop2: 1001
+  }
+
+  const factory = factoryFor(schema)
+
+  const instance = factory(validData)
+
+  t.deepEqual(instance, { prop1: 1000, prop2: 1001 })
+})
+
 test('Given entity with nested entity and valid data, when validate is called, then it should not throw and return itself', t => {
   const childSchema = {
     childProp1: {
