@@ -72,6 +72,13 @@ test('[Validators] Given schema definition with validators, when final schema is
   t.is(result.default.childEntity.validator, fixtures.schemaWithCustomValidators.childEntity.validator)
 })
 
+test('[Default] Given schema definition with `default` option, when final schema is built, then it should have a `default` option defined as the input', t => {
+  const { $contexts = {}, ...definition } = fixtures.schemaWithDefault
+  const result = subject(definition, $contexts)
+
+  t.is(result.default.field1.default, fixtures.schemaWithDefault.field1.default)
+})
+
 test('[Skippable] Given schema definition with no `skippable` option, when final schema is built, then it should have a `skippable` option defined to `false`', t => {
   const { $contexts = {}, ...definition } = fixtures.schemaWithCustomValidators
   const result = subject(definition, $contexts)

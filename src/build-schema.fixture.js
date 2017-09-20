@@ -18,6 +18,12 @@ export const schemaWithSkippable = {
   }
 }
 
+export const schemaWithDefault = {
+  field1: {
+    default: '__default__'
+  }
+}
+
 export const schemaWithCustomValidators = {
   field1: {
     validator: someValidator

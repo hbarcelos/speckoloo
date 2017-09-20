@@ -2,7 +2,7 @@ import { allowAny } from './default-validators'
 import { omit, pick, intersection } from './common'
 
 export default function buildSchema (definition, contexts) {
-  const defaultSchema = fillDefaultValues(definition)
+  const defaultSchema = fillDefaultProperties(definition)
 
   const contextSchemas = Object.entries(contexts)
     .reduce(
@@ -19,15 +19,17 @@ export default function buildSchema (definition, contexts) {
   }
 }
 
-function fillDefaultValues (propertyDefinition) {
+function fillDefaultProperties (propertyDefinition) {
   return Object.entries(propertyDefinition)
     .reduce(
-      (acc, [ propertyName, definition ]) => ({
+      (acc, [ propertyName, { validator, factory, skippable, readOnly, default: _default } ]) => ({
         ...acc,
         [propertyName]: {
-          ...definition,
-          validator: definition.validator || allowAny,
-          skippable: !!definition.skippable
+          default: _default,
+          factory,
+          readOnly,
+          skippable: !!skippable,
+          validator: validator || allowAny
         }
       }),
       {}

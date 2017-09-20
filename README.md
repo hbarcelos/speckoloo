@@ -18,6 +18,8 @@ Domain entities inspired by [Speck][1].
 - [Usage](#usage)
   * [Schemas](#schemas)
     + [Basic structure](#basic-structure)
+    + [Default value](#default-value)
+    + [Read-only properties](#read-only-properties)
     + [Validator](#validator)
       - [Default validators](#default-validators)
       - [Creating custom validators](#creating-custom-validators)
@@ -153,6 +155,83 @@ const instance = myEntityFactory({
   myProp2: 'b',
   myProp3: 'c'
 })
+```
+#### Default value
+
+To define a schema with a default value for a given property, add `default` to the schema definition.
+
+Whenever a property value is missing when the entity factory is called, the default value is set:
+
+
+```javascript
+import { factoryFor } from 'speckoloo'
+
+const mySchema = {
+  myProp1: {
+    default: 'myValue'
+  }
+}
+
+const factory = factoryFor(mySchema)
+
+const instance = factory({})
+
+console.log(instance.toJSON())
+```
+
+Ouptut:
+
+```javascript
+{
+  myProp1: 'myValue'
+}
+```
+
+**NOTICE**: if a [`factory`](#factory) property is set for a given property, it will be called with the `default` value to obtain the final value of the property:
+
+```javascript
+import { factoryFor } from 'speckoloo'
+
+const mySchema = {
+  myProp1: {
+    default: '1',
+    factory: Number
+  }
+}
+
+const factory = factoryFor(mySchema)
+
+const instance = factory({})
+
+console.log(typeof instance.myProp1)
+```
+
+Output:
+
+```javascript
+'number'
+```
+
+#### Read-only properties
+
+To define a schema with read-only properties, add `readOnly` to the schema definition.
+
+When a property is read-only, its value will remain the same as the time of instantiation. Any attempt on set a value for such property will throw a `TypeError`:
+
+```javascript
+const schema = {
+  prop1: {
+    readOnly: true
+  }
+}
+
+const factory = factoryFor(schema)
+
+const instance = factory({
+  prop1: '__initial__'
+})
+
+instance.prop1 = '__new__' // <-- throws TypeError
 ```
 
 #### Validator

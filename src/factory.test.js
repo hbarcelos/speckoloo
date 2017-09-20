@@ -321,7 +321,7 @@ test('Given data that does not contain any valid property, when factory is calle
   t.deepEqual(result.toJSON(), {})
 })
 
-test.only('Given schema with property `factory` as Number, when factory is called, then it should return an entity that contains the referred property', t => {
+test('Given schema with property `factory` as Number, when factory is called, then it should return an entity that contains the referred property', t => {
   const schema = {
     myProp1: {
       fatory: Number
@@ -441,7 +441,7 @@ test('Given data with falsy value for nested entity, when factory is called for 
   })
 })
 
-test('Given data with truthy non-object value for nested entity, when factory is called for parent entity, then the resulting object should not have a property for such nested entity', t => {
+test('Given data with truthy non-object value for nested entity, when factory is called for parent entity, then the resulting object should have a property with an empty value for such nested entity', t => {
   const childSchema = {
     childProp1: {},
     childProp2: {},
@@ -457,9 +457,9 @@ test('Given data with truthy non-object value for nested entity, when factory is
   }
   const parentFactory = subject(parentSchema)
 
-  const falsyValues = [undefined, null, false, '', 0, NaN]
+  const truthyValues = [true, 'non-empty string', 1]
 
-  falsyValues.map(value => {
+  truthyValues.map(value => {
     const invalidData = {
       parentProp1: 'a',
       childEntity: true
@@ -467,6 +467,6 @@ test('Given data with truthy non-object value for nested entity, when factory is
 
     const result = parentFactory(invalidData)
 
-    t.deepEqual(result.toJSON(), pick(invalidData, ['parentProp1']), `Failed for ${value}`)
+    t.deepEqual(result.toJSON().childEntity, {}, `Failed for ${value}`)
   })
 })

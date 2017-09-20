@@ -23,6 +23,44 @@ const validators = {
   }
 }
 
+test('Given entity with default value for property, when it is created without such property, then it should set the property to the default value', t => {
+  const schema = {
+    prop1: {
+      default: '__default__'
+    }
+  }
+
+  const emptyData = {}
+
+  const factory = factoryFor(schema)
+
+  const instance = factory(emptyData)
+
+  t.is(instance.prop1, '__default__')
+})
+
+test('Given entity with `readOnly` property, when trying to set such property, then it should throw an error', t => {
+  const schema = {
+    prop1: {
+      readOnly: true
+    }
+  }
+
+  const validData = {
+    prop1: '__initial__'
+  }
+
+  const factory = factoryFor(schema)
+
+  const instance = factory(validData)
+
+  const error = t.throws(() => {
+    instance.prop1 = '__new__'
+  })
+
+  t.is(error.name, 'TypeError')
+})
+
 test('Given entity with validation and valid data, when validate is called, then it should not throw and return itself', t => {
   const schema = {
     prop1: {
@@ -66,7 +104,7 @@ test('Given entity with validation and invalid data, when validate is called, th
   t.true(error.details.hasOwnProperty('prop2'))
 })
 
-test.only('Given entity with factory and valid data, when factory is called, then it return an object containing the property', t => {
+test('Given entity with factory and valid data, when factory is called, then it return an object containing the property', t => {
   const schema = {
     prop1: {
       factory: Number
