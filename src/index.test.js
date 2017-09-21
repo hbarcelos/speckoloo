@@ -41,6 +41,7 @@ test('Given entity with default value for property, when it is created without s
 
 test('Given entity with one property with default value and other without default, when it is created without such property, then it should set the former to the default value', t => {
   const schema = {
+    prop0: {},
     prop1: {
       default: '__default__'
     },
