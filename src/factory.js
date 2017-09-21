@@ -103,6 +103,7 @@ export default schemaDefinition => {
       if (def.default) {
         return Object.assign(acc, { [propertyName]: def.default })
       }
+      return acc
     }, {})
 
   const schemaKeys = Object.keys(definition)
