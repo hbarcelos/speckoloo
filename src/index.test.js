@@ -57,6 +57,22 @@ test('Given entity with one property with default value and other without defaul
   t.is(instance.prop1, '__default__')
 })
 
+test('Given entity with one property with default value, when factory is called without such property and with `ignoreDefaults` option set to `true`, then it should not set the property to the default value', t => {
+  const schema = {
+    prop1: {
+      default: '__default__'
+    }
+  }
+
+  const emptyData = {}
+
+  const factory = factoryFor(schema)
+
+  const instance = factory(emptyData, { ignoreDefaults: true })
+
+  t.is(instance.prop1, undefined)
+})
+
 test('Given entity with `readOnly` property, when trying to set such property, then it should throw an error', t => {
   const schema = {
     prop1: {

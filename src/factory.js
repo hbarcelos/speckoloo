@@ -109,11 +109,15 @@ export default schemaDefinition => {
   const schemaKeys = Object.keys(definition)
   const prototype = Object.create(null, buildPrototypeDescriptors(schema, $methods))
 
-  const factory = (data = {}) => {
+  const factory = (data = {}, { ignoreDefaults = false } = { ignoreDefaults: false }) => {
     /**
      * The line bellow also covers the case when data is `null`.
      */
-    data = Object.assign({}, defaultValues, data || {})
+    const currentDefaults = ignoreDefaults
+      ? {}
+      : defaultValues
+
+    data = Object.assign({}, currentDefaults, data || {})
 
     const allowedData = Object.keys(data).length === 0
       ? {}

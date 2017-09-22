@@ -19,6 +19,7 @@ Domain entities inspired by [Speck][1].
   * [Schemas](#schemas)
     + [Basic structure](#basic-structure)
     + [Default value](#default-value)
+      - [Ignoring default values](#ignoring-default-values)
     + [Read-only properties](#read-only-properties)
     + [Validator](#validator)
       - [Default validators](#default-validators)
@@ -210,6 +211,35 @@ Output:
 
 ```javascript
 'number'
+```
+
+##### Ignoring default values
+
+It is possible to make the factory ignore all default values, using the `ignoreDefaults` option in its second parameter.
+
+This is useful when creating a patch for a given entity, without having to build it entirely first. This way, when such data is merged, the current value is not overwritten.
+
+```javascript
+import { factoryFor } from 'speckoloo'
+
+const mySchema = {
+  myProp1: {
+    default: 'myValue'
+  }
+}
+
+const factory = factoryFor(mySchema)
+
+const instance = factory({}, {
+  ignoreDefaults: true
+})
+
+console.log(instance.toJSON())
+```
+Output:
+
+```javascript
+{}
 ```
 
 #### Read-only properties
