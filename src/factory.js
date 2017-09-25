@@ -65,21 +65,22 @@ function nestedFactoryWrapper (factory) {
 }
 
 function buildEntityPropertyDescriptors (allowedData, schemaDefinition) {
-  return Object.entries(allowedData)
+  return Object.entries(schemaDefinition)
     .reduce(
-      (acc, [ key, value ]) => {
-        const finalFactory = nestedFactoryWrapper(schemaDefinition[key].factory) || identity
-        const finalValue = finalFactory(value)
-        const readOnly = !!schemaDefinition[key].readOnly
+      (acc, [ key, { factory, readOnly } ]) => {
+        const finalFactory = nestedFactoryWrapper(factory) || identity
+        allowedData[key] = allowedData[key]
+          ? finalFactory(allowedData[key])
+          : undefined
 
         const baseDescriptor = {
-          get () { return finalValue },
+          get () { return allowedData[key] },
           enumerable: true,
           configurable: true
         }
 
         const setterDescriptor = !readOnly
-          ? { set (newValue) { return finalFactory(newValue) } }
+          ? { set (newValue) { allowedData[key] = finalFactory(newValue) } }
           : {}
 
         return Object.assign(

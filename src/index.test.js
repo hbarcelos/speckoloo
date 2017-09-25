@@ -655,3 +655,54 @@ test('Given entity with nested entity with <context> and overriden `delegate` va
 
   t.is(instance.validate('parentContext'), instance)
 })
+
+test('Given simple schema, when setting a property, then it should modify the original entity', t => {
+  'use strict'
+  const schema = {
+    prop1: {
+      factory: Number
+    }
+  }
+
+  const factory = factoryFor(schema)
+
+  const instance = factory({})
+
+  instance.prop1 = '1'
+  t.is(instance.prop1, 1)
+})
+
+test('Given schema with default value, when setting a property, then it should modify the original entity', t => {
+  'use strict'
+  const schema = {
+    prop1: {
+      default: '__default__'
+    }
+  }
+
+  const factory = factoryFor(schema)
+
+  const instance = factory({})
+
+  instance.prop1 = 'myValue'
+  t.is(instance.prop1, 'myValue')
+})
+
+test('Given schema with method that changes the entity, when calling such method, then it should modify the original entity', t => {
+  const schema = {
+    prop1: {
+    },
+    $methods: {
+      change () {
+        this.prop1 = 'changedValue'
+        return this
+      }
+    }
+  }
+
+  const factory = factoryFor(schema)
+
+  const instance = factory({})
+
+  t.is(instance.change().prop1, 'changedValue')
+})
