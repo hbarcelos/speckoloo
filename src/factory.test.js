@@ -2,6 +2,67 @@ import { test } from 'ava'
 import subject from './factory'
 import { pick } from './common'
 
+test('Given simple schema and validData, when factory is called, should create property acessors to all and only the keys described in schema', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+
+  const factory = subject(schema)
+  const result = factory(data)
+
+  t.deepEqual(Object.keys(result), Object.keys(data))
+})
+
+test('Given schema with contexts and valid data, when factory is called, should create property acessors to all and only the keys described in schema', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {},
+
+    $contexts: {
+      context1: {},
+      context2: {}
+    }
+  }
+
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+
+  const factory = subject(schema)
+  const result = factory(data)
+
+  t.deepEqual(Object.keys(result), Object.keys(data))
+})
+
+test('Given simple schema and missing data, when factory is called, should create property acessors to all and only the keys described in schema', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b'
+  }
+
+  const factory = subject(schema)
+  const result = factory(data)
+
+  t.is(Object.keys(result).length, 3)
+})
+
 test('Given valid data, when factory is called, then it should create an object with all keys from schema', t => {
   const schema = {
     myProp1: {},

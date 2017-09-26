@@ -64,8 +64,8 @@ function nestedFactoryWrapper (factory) {
       : factory(data)
 }
 
-function buildEntityPropertyDescriptors (allowedData, schemaDefinition) {
-  return Object.entries(schemaDefinition)
+function buildEntityPropertyDescriptors (allowedData, defaultSchema) {
+  return Object.entries(defaultSchema)
     .reduce(
       (acc, [ key, { factory, readOnly } ]) => {
         const finalFactory = nestedFactoryWrapper(factory) || identity
@@ -126,7 +126,7 @@ export default schemaDefinition => {
 
     const instance = Object.create(
       prototype,
-      buildEntityPropertyDescriptors(allowedData, schemaDefinition)
+      buildEntityPropertyDescriptors(allowedData, schema.default)
     )
 
     return Object.defineProperty(instance, '$factory', {
