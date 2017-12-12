@@ -55,7 +55,7 @@ test('Given invalid data for a schema, when `validate` is called, then it should
 
   const error = await t.throws(() => subject(schema, data))
 
-  t.is(error.name, 'ValidationError')
+  t.is(error.code, 'ERR_VALIDATION')
   t.true(error.details.hasOwnProperty('prop1'))
   t.true(error.details.hasOwnProperty('prop2'))
 })

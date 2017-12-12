@@ -134,7 +134,7 @@ test('Given entity with validation and invalid data, when validate is called, th
   const instance = factory(invalidData)
 
   const error = t.throws(() => { instance.validate() })
-  t.is(error.name, 'ValidationError')
+  t.is(error.code, 'ERR_VALIDATION')
   t.true(error.details.hasOwnProperty('prop2'))
 })
 
@@ -294,7 +294,7 @@ test('Given entity with nested entity with `delegate` validator and invalid data
   const instance = parentFactory(invalidData)
 
   const error = t.throws(() => instance.validate())
-  t.is(error.name, 'ValidationError')
+  t.is(error.code, 'ERR_VALIDATION')
   t.true(error.details.hasOwnProperty('childEntity'))
   t.true(error.details.childEntity.hasOwnProperty('childProp2'))
 })
@@ -324,7 +324,7 @@ test('Given entity with nested entity with `delegate` validator with `required` 
 
   const error = t.throws(() => instance.validate())
 
-  t.is(error.name, 'ValidationError')
+  t.is(error.code, 'ERR_VALIDATION')
   t.notRegex(error.message, /cannot read property 'validate' of undefined/i)
   t.true(error.details.hasOwnProperty('childEntity'))
 })
@@ -357,7 +357,7 @@ test('Given entity with nested entity with `delegate` validator with context and
 
   const error = t.throws(() => instance.validate())
 
-  t.is(error.name, 'ValidationError')
+  t.is(error.code, 'ERR_VALIDATION')
   t.notRegex(error.message, /cannot read property 'validate' of undefined/i)
   t.true(error.details.hasOwnProperty('childEntity'))
 })

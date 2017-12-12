@@ -1,3 +1,5 @@
+import ValidationError from './validation-error.factory'
+
 export default factory => {
   return data => {
     const instances = [...data]
@@ -21,11 +23,7 @@ export default factory => {
           }, {})
 
           if (Object.keys(errors).length > 0) {
-            throw Object.assign(Object.create(Error.prototype), {
-              name: 'ValidationError',
-              message: 'Validation Error!',
-              details: errors
-            })
+            throw ValidationError('Invalid entity aggregate!', { details: errors })
           }
 
           return this

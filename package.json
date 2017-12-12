@@ -7,9 +7,9 @@
   "scripts": {
     "build": "npm run clean && babel src/ -d dist/",
     "clean": "find ./dist -maxdepth 1 -exec rm -rf {} +",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc npm test",
+    "coverage:report": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src/",
-    "coverage-report": "nyc report",
     "postversion": "git push && git push --tags",
     "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
     "prepublishOnly": "npm run build",
@@ -69,6 +69,10 @@
     "check-coverage": true,
     "include": [
       "src/**/*.js"
+    ],
+    "exclude": [
+      "src/**/*.test.js",
+      "src/**/*.fixture.js"
     ],
     "cache": true,
     "all": true

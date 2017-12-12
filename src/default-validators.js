@@ -40,7 +40,7 @@ export function delegate (arg1, arg2) {
       entity.validate(context)
       return { data: entity }
     } catch (e) {
-      if (e.name === 'ValidationError') {
+      if (e.code === 'ERR_VALIDATION') {
         return { error: e.details }
       }
 

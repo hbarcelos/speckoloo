@@ -1,3 +1,5 @@
+import ValidationError from './validation-error.factory'
+
 export default function validate (schema, data) {
   const allErrors = Object.entries(schema).reduce((acc, [ propertyName, definition ]) => {
     if (definition.skippable && data[propertyName] === undefined) {
@@ -9,11 +11,7 @@ export default function validate (schema, data) {
   }, undefined)
 
   if (allErrors) {
-    throw Object.assign(Object.create(Error.prototype), {
-      message: 'Validation Error!',
-      name: 'ValidationError',
-      details: allErrors
-    })
+    throw ValidationError('Invalid entity!', { details: allErrors })
   }
 
   return data
