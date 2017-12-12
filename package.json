@@ -1,6 +1,6 @@
 {
   "name": "speckoloo",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "Domain entites inspired by Speck",
   "main": "dist/index.js",
   "module": "dist/index.js",
