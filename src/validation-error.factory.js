@@ -3,6 +3,9 @@ const ValidationErrorFactory = (message, { details }) => {
     constructor: {
       value: ValidationErrorFactory
     },
+    name: {
+      value: 'ValidationError'
+    },
     code: {
       value: 'ERR_VALIDATION'
     },
@@ -16,6 +19,7 @@ const ValidationErrorFactory = (message, { details }) => {
       value: function _toJSON () {
         return {
           message: this.message,
+          name: this.name,
           code: this.code,
           details: this.details
         }
