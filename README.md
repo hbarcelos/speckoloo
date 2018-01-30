@@ -343,7 +343,7 @@ Then:
 
 ```javascript
 import { factoryFor } from 'speckoloo'
-import joiAdapter from 'speckoloo/adapters/joi'
+import joiAdapter from 'speckoloo/dist/adapters/joi'
 
 const schema = {
   id: {
