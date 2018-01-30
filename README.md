@@ -24,6 +24,7 @@ Domain entities inspired by [Speck][1].
     + [Validator](#validator)
       - [Default validators](#default-validators)
       - [Creating custom validators](#creating-custom-validators)
+      - [Using validation adapters](#using-validation-adapters)
     + [Optional properties](#optional-properties)
     + [Factory](#factory)
     + [Methods](#methods)
@@ -321,6 +322,38 @@ const mySchema = {
     validator: requiredString
   }
 }
+```
+
+##### Using validation adapters
+
+It is possible to use popular validation libraries with `speckoloo`, by wrapping the validation into a function of type `Validator`.
+
+Currently the default adapters available are:
+
+- `joiAdapter`: adapts a [`joi`](https://www.npmjs.com/package/joi) function
+
+You need to install `joi` as a peer dependency to be able to use it:
+
+```bash
+# Install peer dependency
+npm install --save joi
+```
+
+Then:
+
+```javascript
+import { factoryFor } from 'speckoloo'
+import joiAdapter from 'speckoloo/adapters/joi'
+
+const schema = {
+  id: {
+    validator: joiAdapter(Joi.string().alphanum().required())
+  }
+  ...
+}
+
+export default factoryFor(schema)
+
 ```
 
 #### Optional properties

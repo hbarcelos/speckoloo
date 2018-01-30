@@ -9,6 +9,7 @@
     "clean": "find ./dist -maxdepth 1 -exec rm -rf {} +",
     "coverage": "nyc npm test",
     "coverage:report": "nyc report --reporter=text-lcov | coveralls",
+    "generate-toc": "markdown-toc -i README.md",
     "lint": "eslint src/",
     "postversion": "git push && git push --tags",
     "prepublish": "(not-in-publish && echo 'Skipping prepublish') || npm run require-npm4-to-publish",
@@ -50,10 +51,14 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "in-publish": "^2.0.0",
+    "markdown-toc": "^1.2.0",
     "nyc": "^11.1.0",
     "semver": "^5.4.1"
   },
   "dependencies": {},
+  "peerDependencies": {
+    "joi": "^13.1.1"
+  },
   "ava": {
     "require": "babel-register",
     "babel": {
