@@ -39,6 +39,7 @@ Domain entities inspired by [Speck][1].
   * [Serialization](#serialization)
     + [Default serialization](#default-serialization)
     + [Context-aware serialization](#context-aware-serialization)
+  * [Type Checking](#type-checking)
   * [Composite entities](#composite-entities)
     + [Composite entities serialization](#composite-entities-serialization)
     + [Composite entities validation](#composite-entities-validation)
@@ -71,7 +72,7 @@ This library is based on two key concepts:
 
 I prefer OLOO because attempts on simulating classical inheritance are flawed and unneeded in Javascript. Constructors are [essentially broken][5] and the workaround leads to lots of almost-the-same-but-not-quite code, so we cannot rely on `.constructor` properties from objects.
 
-Nominal typing works (barely) only for primitive types (remember that `typeof null === 'object'` :expressionless:), let alone for complex types &mdash; see [`instanceof` lies][6] &mdash; so I also rather use *duck typing* instead of *nominal typing*.
+Nominal typing works (barely) only for primitive types (remember that `typeof null === 'object'` :expressionless:), let alone for complex types &mdash; see [`instanceof` lies][6] &mdash; so I also rather use *duck typing* instead of *nominal typing*. `speckoloo` relies on duck typing for entity construction, but exposes a nominal typing feature through the `constructor` properties of the entities ([see docs](#type-checking)).
 
 This might cause some discomfort for those used to static-typed languages &mdash; coincidentally those where DDD is more widespread &mdash; but the main point of *duck typing* is that [it's the caller job to honor his side of the contract][7]. So, if you are using this library, but are being unpolite, it will probably blow up on your face. Still, I'll try to provide the most descriptive error messages as possible.
 
@@ -822,6 +823,74 @@ Output:
   name: 'SomeUser',
   email: 'some.email@domain.com'
 }
+```
+
+### Type Checking
+
+`speckoloo` factories will optimistically try to coerce entities of compatible schemas through _duck typing_.
+
+```javascript
+import { factoryFor } from 'speckoloo'
+
+const mySchema1 = {
+  myProp1: {},
+  myProp2: {}
+  // missing myProp3
+}
+
+const mySchema2 = {
+  myProp1: {},
+  myProp2: {},
+  myProp3: {}
+}
+
+const myEntityFactory = factoryFor(mySchema1)
+const anotherEntityFactory = factoryFor(mySchema2)
+
+const anotherInstance = anotherEntityFactory({
+  myProp1: 'a',
+  myProp2: 'b',
+  myProp3: 'c'
+})
+
+// Will mostly work if the schemas are compatible:
+const duckTypedInstance = myEntityFactory(anotherInstance)
+
+duckTypedInstance.validate() // does not throw because myProp3 is not required
+console.log(duckTypedInstance.toJSON()) // { myProp1: "a", myProp2: "b" }
+```
+
+For cases where duck typing is not desired, entities expose a `constructor` property that point to the entity factory. The easiest way to check if a entity is an instance of a certain factory is by doing identity check (`===`) in such property:
+
+```javascript
+import { factoryFor } from 'speckoloo'
+
+const mySchema = {
+  myProp1: {},
+  myProp2: {},
+  myProp3: {}
+}
+
+const myEntityFactory = factoryFor(mySchema)
+const anotherEntityFactory = factoryFor(mySchema)
+
+const instance = myEntityFactory({
+  myProp1: 'a',
+  myProp2: 'b',
+  myProp3: 'c'
+})
+
+const anotherInstance = anotherEntityFactory({
+  myProp1: 'a',
+  myProp2: 'b',
+  myProp3: 'c'
+})
+
+const duckTypedInstance = myEntityFactory(anotherInstance)
+
+console.log(instance.constructor === myEntityFactory) // true
+console.log(anotherInstance.constructor === myEntityFactory) // false (no duck typing here!)
+console.log(duckTypedInstance.constructor === myEntityFactory) // true
 ```
 
 ### Composite entities

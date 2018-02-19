@@ -81,7 +81,7 @@ test('Given valid data, when factory is called, then it should create an object 
   t.deepEqual(result, data)
 })
 
-test('Given valid data, when factory is called, then it should create an object with `$factory` property pointing to the same factory', t => {
+test('Given valid data, when factory is called, then it should create an object with `construtor` property pointing to the same factory', t => {
   const schema = {
     myProp1: {},
     myProp2: {},
@@ -96,7 +96,53 @@ test('Given valid data, when factory is called, then it should create an object 
 
   const result = factory(data)
 
-  t.is(result.$factory, factory)
+  t.is(result.constructor, factory)
+})
+
+test('Given two identical schemas, when an entity from the first one is created from an entity from the second one, then the factory must apply duck typing and return an object from the first type', t => {
+  const schema1 = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+  const schema2 = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+
+  const instanceFactory = subject(schema1)
+  const anotherInstanceFactory = subject(schema2)
+
+  const result = instanceFactory(anotherInstanceFactory(data))
+
+  t.is(result.constructor, instanceFactory)
+})
+
+test('Given schema, when factory is called, then it should return an object which is not `instnaceof` the factory', t => {
+  const schema = {
+    myProp1: {},
+    myProp2: {},
+    myProp3: {}
+  }
+
+  const data = {
+    myProp1: 'a',
+    myProp2: 'b',
+    myProp3: 'c'
+  }
+
+  const factory = subject(schema)
+  const instance = factory(data)
+
+  const error = t.throws(() => instance instanceof factory)
+  t.regex(error.message, /function has non-object prototype/i)
 })
 
 test('Given already instantiated entity, when factory is called, then it should create a copy of the original data', t => {

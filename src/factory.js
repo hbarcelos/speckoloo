@@ -129,7 +129,7 @@ export default schemaDefinition => {
       buildEntityPropertyDescriptors(allowedData, schema.default)
     )
 
-    return Object.defineProperty(instance, '$factory', {
+    return Object.defineProperty(instance, 'constructor', {
       value: factory
     })
   }
