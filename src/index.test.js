@@ -157,7 +157,7 @@ test('Given entity with factory and valid data, when factory is called, then it 
 
   const instance = factory(validData)
 
-  t.deepEqual(instance, { prop1: 1000, prop2: 1001 })
+  t.deepEqual(instance.toJSON(), { prop1: 1000, prop2: 1001 })
 })
 
 test('Given entity with nested entity and valid data, when validate is called, then it should not throw and return itself', t => {
